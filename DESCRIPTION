@@ -1,0 +1,21 @@
+Package: diVis
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
+Suggests: 
+    testthat
+Collate: data-raw/cattr.R data-raw/geo-list.R dev/setting up pkg.R R/data.R
+    R/diVis.R R/flow-fcns_data-processing.R R/flow-fcns_region-parsing.R
+    R/mod_parse.geometries_server.R R/mod_prep.data_server.R
+    R/mod_prep.data_ui.R R/server.R R/ui-params_selectables.R R/ui.R
+    tests/testthat.R tests/testthat/test-flow-fcns_region-parsing.R
