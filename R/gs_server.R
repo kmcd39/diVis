@@ -43,11 +43,6 @@ server <- function(input, output, session) {
   #c(show_CTs, gs.palette) %<-%
   show_CTs <-
     mod_parse_CT_display("gs", leaflet_interaction, show_CTs, prox)
-
-  observeEvent(show_CTs(), {
-    print(head(show_CTs(), 1))
-  })
-
 }
 
 

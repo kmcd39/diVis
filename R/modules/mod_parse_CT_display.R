@@ -18,15 +18,19 @@ mod_parse_CT_display <- function(id, leaflet_interaction, show_CTs, proxy) {
     # new show_CTs status
     new.show_CTs <- reactiveVal(NULL)
 
+    # module params
+    minimum_ct_zoom <- 8
+
     observeEvent(leaflet_interaction$zoom_level, {
 
-      cat("zoom level", leaflet_interaction$zoom_level, "\n")
+      #cat("zoom level", leaflet_interaction$zoom_level, "\n")
 
       # if you ~were~ showing CTs and you zoom out <=6(?), start showing larger areas
-      if( !is.null(show_CTs()) && leaflet_interaction$zoom_level <= 6) {
+      if( !is.null(show_CTs()) && leaflet_interaction$zoom_level < minimum_ct_zoom) {
         new.show_CTs(NULL)
+        # ...and reset last clicked region
+        leaflet_interaction$clicked_region <- NULL
       }
-
 
     })
 
@@ -34,15 +38,14 @@ mod_parse_CT_display <- function(id, leaflet_interaction, show_CTs, proxy) {
     observeEvent(leaflet_interaction$clicked_region, {
 
       region = leaflet_interaction$clicked_region
-
-      cat(region$region.name,"\n")
+      #cat(region$region.name,"\n")
 
       # if you weren't previously showing CTs, do so for clicked region, and zoom in.
       if( is.null(show_CTs()) && !is.null(region) ) {
 
         zoom.coords <- fast.approx.centroid(region)
         leaflet::flyTo(proxy, zoom.coords$lon, zoom.coords$lat,
-                       zoom = 7)
+                       zoom = minimum_ct_zoom)
 
         mapCTs <- get_CTs_by_region(region) %>% rename("x" = !!rlang::sym(input$outcome))
 
@@ -62,9 +65,7 @@ mod_parse_CT_display <- function(id, leaflet_interaction, show_CTs, proxy) {
   })
 }
 
-
 # helper -----------------------------------------------------------------------
-
 
 fast.approx.centroid <- function(region) {
   bbox = as.list(st_bbox(region))

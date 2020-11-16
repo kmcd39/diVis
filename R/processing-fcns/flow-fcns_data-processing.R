@@ -33,7 +33,7 @@ attr_subset <- function(input) {
 #' formatted column. Assumes column named 'x' to send output. Flow-fcns/data-processing
 #' @param df Dataframe to send to display
 #' @param ... Add'l arguments passed to \code{bin.var_format}
-bin_and_format <- function(df, ...) {
+bin_and_format <- function(df, n_breaks = 7, ...) {
 
   df$binned_x <- appHelpers::bin.var_format(df$x, ...)
 

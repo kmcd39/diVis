@@ -1,10 +1,10 @@
 
 #' click.hover_2region
 #'
-#' Transliates a click or hover interaction on a leaflet polygon map the row
+#' Translates a click or hover on a leaflet polygon to the row
 #' representing the clicked region.
-#' @param cursor_data list as returned from input$map_shape_click
-#' @param map.layer
+#' @param cursor_data list as returned from input$map_shape_click or hover.
+#' @param map.layer sf object on leaflet map.
 click.hover_2region <- function(cursor_data, map.layer){
 
   if(is.null(cursor_data) | is.null(map.layer()))

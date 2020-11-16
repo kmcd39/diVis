@@ -24,7 +24,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
-mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, map.palette, proxy) {
+mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
   moduleServer(id,
                function(input, output, session) {
@@ -33,39 +33,53 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, map.palette, proxy) {
 
                    req(!is.null(gs.dat()))
 
-                   browser()
+
                    # If not showing CTs, clear CTs and set params to map larger areas.
-                   if( is.null(show_CTs()) ) {
-                     proxy %>% clearGroup("cts")
+                   showing_cts <- !is.null(show_CTs())
+                   if( !showing_cts ) {
+                     #proxy %>% clearGroup("cts")
 
                      to.map <- gs.dat()
                      fully_zoomed <- F
                      opacities <- 0.6
-                     grp.name <- "dat"
+                     #grp.name <- "dat"
+                     map.pal <- gs.palette()
 
-                   } else if( !is.null(show_CTs()) ) {
-                     proxy %>% clearGroup("dat")
+                   } else if( showing_cts ) {
+                     #proxy %>% clearGroup("dat")
 
                      to.map <- show_CTs()
                      fully_zoomed <- T
-                     opacities <- appHelpers::col.to.opacity(to.map$population)
-                     grp.name <- "cts"
-
+                     #opacities <- appHelpers::col.to.opacity(to.map$pop.dens)
+                     #grp.name <- "cts"
+                     map.pal <- colorFactor(viridis::plasma(7),
+                                            domain = to.map$binned_x)
                    }
+
+                   # whether to do fill opacity by pop.density on leaflet:
+                   opacity_from_pop.dens <- showing_cts
 
                    # populate map -----------------------------------------------------------------
                    tooltips <- make_tooltips(input, to.map, click2zoom_enabled = !fully_zoomed)
-                   #appHelpers::add_legend( to.map, map.palette(), legend.title = make_display_label(input) )
 
-                   # browser()
-                   proxy %>%
-                     iterative_choropleth_draw(to.map, grp.name,
+                   # add legend
+                   proxy %>% add_legend( to.map, map.pal,
+                                         legend.title = make_display_label(input,
+                                                                           showing_cts = showing_cts) )
+
+                   # clear old shapes
+                   proxy %>% clearGroup("gs.dat")
+
+                   # add shapes
+                   proxy %>%  # iterative_choropleth_draw
+                     choropleth_draw(to.map, grp.name = "gs.dat",
                                                tooltips,
-                                               pal = map.palette(),
-                                               fillOpacity = opacities,
-                                               weight = 1.1,
+                                               pal = map.pal,
+                                               opacity_from_pop.dens = opacity_from_pop.dens,
+                                               #fillOpacity = opacities,
                                                color = "white",
-                                               smoothFactor = 1.1)
+                                               weight = .5
+                                               )
                    # ?leaflet::addPolygons
                    # getting events from leaflet interaction:
                    # https://rstudio.github.io/leaflet/shiny.html
@@ -106,7 +120,7 @@ leaflet.app <- function() {
 
     # parse core input using geoseg module
     c(gs.out, gs.palette) %<-%
-      geoseg_server("gs" )#, gs.out, gs.palette)
+      geoseg_server("gs" )
 
     # send to map using leaflet module
     mod_geoseg_leaflet("gs", gs.out, show_CTs = reactiveVal(NULL), gs.palette, prox)
@@ -117,4 +131,4 @@ leaflet.app <- function() {
 
 
 # launch -----------------------------------------------------------------------
-leaflet.app()
+# leaflet.app()

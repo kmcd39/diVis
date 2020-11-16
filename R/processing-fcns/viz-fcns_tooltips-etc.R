@@ -6,14 +6,16 @@ unlist(unname(selectables$outcomes))
 #'
 #' Get display/label name based on selected outcome / indicator. prefixes change.in
 #' when necessary. viz-fcns/tooltip
-make_display_label <- function(input, change_in = F, outcome.opts = selectables$outcomes) {
+make_display_label <- function(input, change_in = F, showing_cts = F, outcome.opts = selectables$outcomes) {
   # get UI name for selected outcome; appends indicator if appropriate
   ui_outcome_string <- unlist(unname(outcome.opts))[unlist(unname(outcome.opts)) == input$outcome] %>% names()
-  ui_indicator_string <- { if(input$indicator == "outcome") "" else paste0(input$indicator, " - ") }
+  ui_indicator_string <- { if(showing_cts || input$indicator == "outcome")
+    ""
+    else paste0(input$indicator, " - ")
+    }
 
   ui_name <- paste0(ui_indicator_string, ui_outcome_string)
   if (change_in) ui_name <- paste0("Change in ", ui_name)
-  #if (input$show_CTs | input$indicator == "outcome") return( ui_name )
 
   return(ui_name)
 }
@@ -21,24 +23,32 @@ make_display_label <- function(input, change_in = F, outcome.opts = selectables$
 
 # leaflet tooltips -------------------------------------------------------------
 
+
+add_legend <- function(proxy, to.map, pal, legend.title) {
+  proxy %>%
+    clearControls() %>%
+    addLegend(pal = pal,
+              values = to.map$binned_x[!is.na(to.map$binned_x)],
+              opacity = 0.6,
+              title = legend.title, position = "bottomleft")
+}
+
 #' make_tooltips
 #'
 #' Makes hover tooltips for leaflet. Concatenates and formats relevant information.
-#' Outcome/indicator, population, and names for larger areas.
-#' Viz-fcns/tooltip.
-make_tooltips <- function(input, to.map, show_cts = FALSE, click2zoom_enabled = TRUE) {
+#' Outcome/indicator, population, and names for larger areas. Viz-fcns/tooltip.
+#' @param click2zoom_enabled If the leaflet layer can be zoomed in by clicking on a
+#'   region; will also show region names if T
+make_tooltips <- function(input, to.map, click2zoom_enabled = TRUE) {
 
   # make outcome/indicator & population
   tooltip <- paste0("<b>",make_display_label(input), ":</b> ",to.map$formatted_x,
                     "<br><b>population:</b> ", appHelpers::q.format(to.map$population, digits = 0))
 
-  # area names header if not CTs
-  if ( is.null(show_cts) )
-    tooltip <- paste0("<b>",input$region_type,":</b> ",to.map$region.name,
-                      "<br>", tooltip)
-
-  if(click2zoom_enabled & (is.null(show_cts) || !show_cts))
-    tooltip <- paste0(tooltip,
+  # area names header & zoom info if not CTs
+  if(click2zoom_enabled)
+    tooltip <- paste0("<b>",input$region_type,":</b> ",to.map$region.name, "<br>",
+                      tooltip,
                       "<br><b>(click to zoom)</b>")
 
   return(tooltip)

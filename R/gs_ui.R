@@ -16,6 +16,9 @@ ui <- fluidPage(
     mainPanel(
       leafletOutput("map",
                     height = output.height),
+
+      mod_div_overlay_ui("gs", div.opts),
+
       width = 12 - sidebar.width
     )
   )

@@ -48,9 +48,7 @@ colnames(Tcts) <- tolower(colnames(Tcts))
 Tcts$name %>% as.numeric() %>% sort(decreasing = T) %>% head()
 ctgeos <- Tcts %>%
   filter(as.numeric(name) < 9900) %>%
-  select(c(1:3,geoid, geometry))
-
-
+  select(c(1:3,geoid, aland, geometry))
 
 # transform
 ctgeos <- st_transform(st_sf(ctgeos), 4326)
@@ -61,7 +59,7 @@ ctgeos <- st_transform(st_sf(ctgeos), 4326)
 ctgeoS <-
   rmapshaper::ms_simplify(
     st_make_valid(ctgeos),
-    keep = 0.04,
+    keep = 0.05,
     keep_shapes = T)
 
 
@@ -75,7 +73,7 @@ cattr[duplicated(cattr$geoid), ]
 
 
 cts <- left_join(cattr,
-                 ctgeoS[,c("geoid", "geometry")])
+                 ctgeoS[,c("geoid", "aland", "geometry")])
 
 
 
@@ -89,8 +87,17 @@ cts <- cts %>% select(-tractce)
 
 
 
+# generate population density/tract --------------------------------------------
+
+# aland 2 km
+cts$aland = cts$aland / 1e6
+cts$pop.dens = cts$population / cts$aland
+cts$pop.dens = round(cts$pop.dens, 3)
+
+
 # checks -----------------------------------------------------------------------
 cts %>% summary()
+nrow(ctgeoS) == nrow(ctgeos)
 
 cts %>% purrr::map( ~sum(is.na(.)))
 # sum(!st_is_valid(cts$geometry))

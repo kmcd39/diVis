@@ -16,6 +16,7 @@
 iterative_choropleth_draw <- function(leaflet_proxy,
                                       st_df, poly_group = "dat",
                                       tooltips, pal, ...,
+                                      opacity_from_pop.dens = F,
                                       bkdwn_size = 50) {
 
   leaflet_proxy %>% clearGroup(poly_group)
@@ -26,7 +27,7 @@ iterative_choropleth_draw <- function(leaflet_proxy,
   leaflet_proxy %>%
     choropleth_draw(st_df[1:bkdwn_size, ], poly_group
                     ,tooltips = tooltips[1:bkdwn_size]
-                    ,pal, ...)
+                    ,pal, ..., opacity_from_pop.dens)
   # check2end
   if(n_iterations == 1) return()
 
@@ -38,7 +39,7 @@ iterative_choropleth_draw <- function(leaflet_proxy,
     leaflet_proxy %>%
       choropleth_draw(st_df[subset_index, ], poly_group
                       ,tooltips = tooltips[subset_index]
-                      ,pal , ...)
+                      ,pal, ..., opacity_from_pop.dens)
   }
 }
 
@@ -60,8 +61,8 @@ choropleth_draw <- function(leaflet_proxy,
                             tooltips, pal,
                             var.name = "binned_x", outlines = NULL,
                             popup_btns = NULL,
-                            opacity_from_pop = FALSE
-                            , fillOpacity = .75
+                            opacity_from_pop.dens = FALSE
+                            , fillOpacity = .7
                             , ...) {
 
   # drop empty geometries.
@@ -73,8 +74,8 @@ choropleth_draw <- function(leaflet_proxy,
   vv <- pull(st_df, !!var.name)
 
   # parse fillOpacity parameter --
-  if(opacity_from_pop)
-    opacities <- appHelpers::col.to.opacity(st_df$population)
+  if(opacity_from_pop.dens)
+    opacities <- appHelpers::col.to.opacity(st_df$pop.dens)
   else
     opacities <- fillOpacity
 
