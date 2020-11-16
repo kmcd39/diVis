@@ -20,12 +20,13 @@ library(zeallot)
 #geo.list <- readRDS(file = "../data/geo.list.rds")
 #metrics <- readRDS(file = "../data/metrics.RDS") #geoseg::metrics %>% rename(outcome = x)
 
-geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 # geo.list[[4]]
 
 geo.list <- readRDS(file = "data/geo.list.rds")
 metrics <- readRDS(file = "data/metrics.RDS")
 cts <- readRDS(file = "data/cts.RDS")    #geoseg::cts
+
+geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 
 # minor helper sets ------------------------------------------------------------
 

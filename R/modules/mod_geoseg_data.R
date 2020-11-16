@@ -66,8 +66,7 @@ geoseg_ui <- function(id, selectables){
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-geoseg_server <- function(id,
-                          gui_inputs = NULL, gs.colors = viridis::viridis(7)) {
+geoseg_server <- function(id, gs.colors = viridis::viridis(7)) {
 
   moduleServer(id, function(input, output, session) {
 
@@ -80,7 +79,7 @@ geoseg_server <- function(id,
 
 
       # call wrapper fcn to parse data; set output to reactive
-      gs.out( parse.geoseg.data(input, show_cts, gui_inputs) )
+      gs.out( parse.geoseg.data(input) )
 
       # generate color fcn
       pal <- colorFactor(gs.colors,
@@ -117,7 +116,7 @@ base.app <- function() {
     # output$out <- renderPrint(v())
     output$out <- DT::renderDataTable({
       req(!is.null(v()))
-      v(select(v(), setdiff(colnames(v()), c("x", "geometry")), "geometry"))
+      v(select(tibble(v()), setdiff(colnames(v()), c("x", "geometry")), "geometry"))
       DT::datatable(v())
     })
   }

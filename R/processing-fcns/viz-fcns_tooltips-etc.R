@@ -30,7 +30,7 @@ make_tooltips <- function(input, to.map, show_cts = FALSE, click2zoom_enabled = 
 
   # make outcome/indicator & population
   tooltip <- paste0("<b>",make_display_label(input), ":</b> ",to.map$formatted_x,
-                    "<br><b>population:</b> ", q.format(to.map$population, digits = 0))
+                    "<br><b>population:</b> ", appHelpers::q.format(to.map$population, digits = 0))
 
   # area names header if not CTs
   if ( is.null(show_cts) )
@@ -75,7 +75,7 @@ apply_rounding <- function(x) {
     x <- appHelpers::q.format(x, digits = 0)
     return(x)
   }
-  x <- appHelpers::q.format(x, digits = 2)
+  x <- appHelpers::q.format(x, digits = 3)
   return(x)
 }
 

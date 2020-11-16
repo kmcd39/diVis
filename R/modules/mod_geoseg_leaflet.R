@@ -33,12 +33,12 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, map.palette, proxy) {
 
                    req(!is.null(gs.dat()))
 
-                   #browser()
+                   browser()
                    # If not showing CTs, clear CTs and set params to map larger areas.
                    if( is.null(show_CTs()) ) {
                      proxy %>% clearGroup("cts")
 
-                     to.map <- st_sf(gs.dat())
+                     to.map <- gs.dat()
                      fully_zoomed <- F
                      opacities <- 0.6
                      grp.name <- "dat"
@@ -46,9 +46,9 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, map.palette, proxy) {
                    } else if( !is.null(show_CTs()) ) {
                      proxy %>% clearGroup("dat")
 
-                     to.map <- st_sf(show_CTs())
+                     to.map <- show_CTs()
                      fully_zoomed <- T
-                     opacites <- appHelpers::col.to.opacity(to.map$population)
+                     opacities <- appHelpers::col.to.opacity(to.map$population)
                      grp.name <- "cts"
 
                    }

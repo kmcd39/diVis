@@ -44,11 +44,13 @@ mod_parse_CT_display <- function(id, leaflet_interaction, show_CTs, proxy) {
         leaflet::flyTo(proxy, zoom.coords$lon, zoom.coords$lat,
                        zoom = 7)
 
-        new.show_CTs(
-          get_CTs_by_region(region) )
+        mapCTs <- get_CTs_by_region(region) %>% rename("x" = !!rlang::sym(input$outcome))
 
+        mapCTs <- bin_and_format(mapCTs)
+        mapCTs <- st_sf(mapCTs)
 
-      }
+        new.show_CTs(mapCTs)
+        }
     })
 
     return(new.show_CTs)

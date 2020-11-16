@@ -51,6 +51,11 @@ ctgeos <- Tcts %>%
   select(c(1:3,geoid, geometry))
 
 
+
+# transform
+ctgeos <- st_transform(st_sf(ctgeos), 4326)
+
+
 # simplify FURTHER
 # capital S for simplified
 ctgeoS <-
@@ -72,6 +77,18 @@ cattr[duplicated(cattr$geoid), ]
 cts <- left_join(cattr,
                  ctgeoS[,c("geoid", "geometry")])
 
+
+
+# simplify colnames / drop unused ------------------------------------------------------------
+
+colnames(cts) <- gsub("_pooled_pooled_", "_", colnames(cts))
+colnames(cts)[grepl(".+_n$", colnames(cts))]
+
+cts <- cts %>% select(-matches(".+_n$|.+_se$"))
+cts <- cts %>% select(-tractce)
+
+
+
 # checks -----------------------------------------------------------------------
 cts %>% summary()
 
@@ -85,6 +102,8 @@ cts %>%
   select(1:10) %>% distinct()
 
 # write ------------------------------------------------------------------------
+
+# cts <- readRDS("data/cts.RDS")
 
 saveRDS(cts,
          "data/cts.RDS")
