@@ -73,7 +73,7 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
                    # add shapes
                    proxy %>%  # iterative_choropleth_draw
                      choropleth_draw(to.map, grp.name = "gs.dat",
-                                               tooltips,
+                                               tooltips = tooltips,
                                                pal = map.pal,
                                                opacity_from_pop.dens = opacity_from_pop.dens,
                                                #fillOpacity = opacities,

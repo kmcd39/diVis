@@ -77,7 +77,6 @@ geoseg_server <- function(id, gs.colors = viridis::viridis(7)) {
     observeEvent( list(input$outcome, input$indicator,
                        input$region_type, input$pop_weighted), {
 
-
       # call wrapper fcn to parse data; set output to reactive
       gs.out( parse.geoseg.data(input) )
 
@@ -126,4 +125,4 @@ base.app <- function() {
 
 # run (test) --------------------------------------------------------------------
 
-base.app()
+# base.app()

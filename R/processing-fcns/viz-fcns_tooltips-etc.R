@@ -42,14 +42,14 @@ add_legend <- function(proxy, to.map, pal, legend.title) {
 make_tooltips <- function(input, to.map, click2zoom_enabled = TRUE) {
 
   # make outcome/indicator & population
-  tooltip <- paste0("<b>",make_display_label(input), ":</b> ",to.map$formatted_x,
+  tooltip <- paste0("<b>",make_display_label(input, showing_cts = !click2zoom_enabled), ":</b> ",to.map$formatted_x,
                     "<br><b>population:</b> ", appHelpers::q.format(to.map$population, digits = 0))
 
   # area names header & zoom info if not CTs
   if(click2zoom_enabled)
-    tooltip <- paste0("<b>",input$region_type,":</b> ",to.map$region.name, "<br>",
+    tooltip <- paste0("<b>",to.map$region.name,"</b><br>",
                       tooltip,
-                      "<br><b>(click to zoom)</b>")
+                      "<br>(click to zoom)")
 
   return(tooltip)
 }

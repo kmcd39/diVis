@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyWidgets)
+library(shinyjs)
 #library(shinydashboard)
 library(leaflet)
 library(DT)
@@ -51,7 +52,7 @@ l48bbox <- st_bbox(l48) %>% bbox_to_lnglat(padding = 0)
 
 # gets all R scripts in these subfolders and sources them
 src.dirs <- c(
-  "R/params/"
+   "R/params/"
   ,"R/processing-fcns/"
   ,"R/modules/"
 
@@ -65,3 +66,9 @@ source.in.dir <- function(srcd) {
 }
 
 map(src.dirs, source.in.dir)
+
+db.pw
+# get dev sets ----------------------------------------------------------------
+
+source("R/dev_build-test-sets.R")
+

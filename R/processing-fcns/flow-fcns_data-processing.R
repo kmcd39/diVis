@@ -43,7 +43,6 @@ bin_and_format <- function(df, n_breaks = 7, ...) {
   df <- mutate(df,
                across(!!format_cols,
                       apply_rounding))
-
   return(df)
 }
 

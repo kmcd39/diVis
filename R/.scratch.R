@@ -1,4 +1,47 @@
 
+# divs from db -----------------------------------------------------------------
+
+library(dblinkr)
+
+
+
+# checking qual color schemes --------------------------------------------------
+
+library(Polychrome)
+# i think one of these two...
+swatch(kelly.colors()[3:22])
+swatch(dark.colors())
+
+div.colors <- kelly.colors()[3:22]
+
+
+swatch(viridis::cividis(8))
+swatch(viridis::plasma(7))
+swatch(viridis::magma(7))
+swatch(viridis::inferno(7))
+
+# working out div overlay process ----------------------------------------------
+
+tmp.cts
+
+tmp.redlining$holc_grade = factor(tmp.redlining$holc_grade)
+
+leaflet() %>%
+  addTiles() %>%
+  choropleth_draw(tmp.cts, "cts",
+                  tmp.tooltips, tmp.pal,
+                  opacity_from_pop.dens = T,
+                  stroke = F) %>%
+  ?addPolylines(data = #tmp.redlining,
+                st_boundary(long.lat_buffer(tmp.redlining, -25)),
+              color = colorFactor(redlining.colors,
+                                      tmp.redlining$holc_grade)(tmp.redlining$holc_grade),
+              opacity = 1,
+              stroke = T,
+              label = tmp.redlining$holc_grade)
+
+
+
 # checking ms_simplify params --------------------------------------------------
 
 Tcts %>%
