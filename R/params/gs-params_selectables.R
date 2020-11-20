@@ -32,29 +32,14 @@ region_type <- list("Commuting Zone" = "cz",
                      "County" = "county",
                      "Metro Area" = "cbsa")
 
-
 # Division overlay options
-div_overlays <- c( "None" = "None"
-                   ,"Limited-access highways" = "lac_hwys"
-                   ,"Local governments" = "plc"
-                   ,"School districts" = "school_dists"
-                   ,"Redlining / HOLC neighborhoods" = "redlining")
+# defined in div-fcns/ script
 
 # to check state of database:
-# dbListObjects(con)
-# tbls.in.schema(con, "shps")
 selectables <- list(outcomes = outcomes,
                     indicators = indicators,
                     region_type = region_type)
 
-# population slider -------------------------------------------------------
-
-# population slide range --- right now filter can run from 0 to 1mil
-count.to.million <- function(by = 5000) seq.int( 0, 1e6, by = by)
-
-pop_filter_range <-
-  c(trimws(format(count.to.million(), big.mark = ",", digits = 0, scientific = F)),
-    ">1 million")
 
 # gui selectables ---------------------------------------------------------
 # color palette options

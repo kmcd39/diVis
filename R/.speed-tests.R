@@ -1,4 +1,21 @@
 
+
+# petty but i'm curious ------------------------------------------------------------------------
+
+# df vs tibble conversion from sf
+microbenchmark::microbenchmark(
+  data.frame(geo.list$cz), # df is faster but units still microseconds for both
+  tibble(geo.list$cz)
+)
+
+
+# dim vs nrow from checking emptdy dfs
+microbenchmark::microbenchmark(
+  nrow(metrics[0,]) == 0, # the same
+  dim(metrics[0,])[1] == 0
+)
+
+
 # bboxin -----------------------------------------------------------------------
 
 microbenchmark::microbenchmark( # the same:)

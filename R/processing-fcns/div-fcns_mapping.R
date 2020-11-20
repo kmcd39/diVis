@@ -1,4 +1,18 @@
 
+# color/column index ------------------------------------------------------------------
+
+# set options for overlays and parameters to be used for mapping each one.
+(div.param.Index <- tibble(
+  div.name = c("redlining", "rails_bts", "hwys", "places", "school_dists", "hwyPlan1947"),
+  id_col = c("holc_grade", NA, "SIGN1", "NAME", "NAME", "SIGN1"),
+  color_by_column = c(T, F, F, F, F, F)
+))
+
+# options for UI
+div.opts <- div.param.Index$div.name
+
+
+
 # color palettes ---------------------------------------------------------------
 
 darken.amt = .4
@@ -13,23 +27,38 @@ redlining.colors <-
       red = rgb(225, 16, 2, maxColorValue=255)) %>%
   colorspace::darken(amount = darken.amt)
 
-
 # other div colors -----
 
-#Polychrome::swatch(Polychrome::kelly.colors()[3:22])
-#Polychrome::swatch(Polychrome::dark.colors())
-Polychrome::swatch(RColorBrewer::brewer.pal(8, "Dark2"))
 
 # used if no color_col specified, but cycled thru per-division-layer
-div.colors <- RColorBrewer::brewer.pal(8, "Dark2")[c(1:3,5:8)] %>%
-  colorspace::darken(darken.amt)
+cols <- c("purple", "lightblue", "green", "violet", "reddishbrown", "olivegreen")
+Polychrome::swatch(Polychrome::kelly.colors()[3:22]) %>%
+    `[`(cols)
+
+  #  `[`(c(2,4,9,11,13,15,22))
+
+div.colors <- (Polychrome::kelly.colors()[3:22]) %>%
+  `[`(cols)
+# Polychrome::swatch(div.colors)
+
+#RColorBrewer::brewer.pal(8, "Dark2")[c(1:3,5:8)] %>%
+#  colorspace::darken(darken.amt)
 
 # cycled through when a color col is specified for a division
 other.div.interpolation <- RColorBrewer::brewer.pal(8, "Accent") %>%
   colorspace::darken(darken.amt)
 
-Polychrome::swatch(other.div.interpolation)
-Polychrome::swatch(div.colors)
+# Polychrome::swatch(other.div.interpolation)
+
+# create color fcn -------------------------------------------------------------
+
+divs_needing_color <- div.param.Index[div.param.Index$div.name %in% div.opts & !div.param.Index$color_by_column,]$div.name
+
+div.pal <-
+  colorFactor(div.colors,
+              divs_needing_color)
+
+# Polychrome::swatch(div.pal(divs_needing_color))
 
 
 # mapping div fcns ------------------------------------------------------------------
@@ -62,16 +91,17 @@ long.lat_buffer <- function(sf, buffer, ...) {
 #'   legible if they tend to be co-terminous, like places.
 #' @param ... additional arguments passed onto addPolygons or addPolylines
 leaflet.add_division_layer <- function(proxy, div.sf,
-                                       div.name = NULL, color_col = NA,
-                                       weight = 6, shrink.divs = c("redlining", "plc", "places", "school_dists"),
+                                       div.name = NULL, id_col = NA,
+                                       color_by_column = F,
+                                       weight = 5, shrink.divs = c("redlining", "plc", "places", "school_dists"),
                                        ...) {
 
   # get colors based on combination of division name or column to color by
-  colors <- get.div.colors(div.sf, div.name, color_col)
+  colors <- get.div.colors(div.sf, div.name, id_col, color_by_column)
 
   # make tooltips
-  if(!is.na(color_col))
-    div.tooltips <- pull(div.sf, !!color_col)
+  if(!is.na(id_col))
+    div.tooltips <- pull(div.sf, !!id_col)
   else
     div.tooltips <- div.name
 
@@ -80,7 +110,7 @@ leaflet.add_division_layer <- function(proxy, div.sf,
     div.sf <- long.lat_buffer(div.sf, -25)
 
   #add white outline to distinguish from choropleth
-  out <- proxy %>% div.outline(div.sf, weight + 5)
+  out <- proxy %>% div.outline(div.sf, weight + 3)
 
   # add main div representation
   out <- out %>%
@@ -101,17 +131,18 @@ leaflet.add_division_layer <- function(proxy, div.sf,
 #' Get a single hex color or vector of colors, based on a information on a division
 #' dataset. Will color by the divname (i.e., 'school.districts') or a column in
 #' divdat; i.e, holc grade.
-get.div.colors <- function(df, div.name = NULL, color_col = NA, div.palette = colorFactor(div.colors,
-                                                                                           div.opts)) {
-  if(!is.na(color_col) & !is.null(div.name)) {
+get.div.colors <- function(df, div.name = NULL, id_col = NA,
+                           color_by_column = F, pal = div.pal) {
+
+  if(color_by_column & !is.null(div.name)) {
     colors <- case_when(div.name == "redlining" ~ colorFactor(redlining.colors,
-                                                              domain = pull(df, !!color_col))(pull(df, !!color_col))
+                                                              domain = pull(df, !!id_col))(pull(df, !!id_col))
                         # fill in to add other specialized color layers....
                         ,TRUE ~ colorFactor(other.div.interpolation,
-                                            domain = pull(df, !!color_col))(pull(df, !!color_col))
+                                            domain = pull(df, !!id_col))(pull(df, !!id_col))
                         )
   } else if(!is.na(div.name)) {
-    colors <- div.palette(div.name)
+    colors <- pal(div.name)
   } else
     stop("At least 1 of name or color column must be non-NULL to get.div.colors")
 
@@ -128,27 +159,51 @@ get.div.colors <- function(df, div.name = NULL, color_col = NA, div.palette = co
 #' Adds a white outline under a division layer to set it apart from underlying
 #' choropleth.
 #' @inheritParams leaflet.add_division_layer
-div.outline <- function(proxy, div.sf, weight) {
+div.outline <- function(proxy, div.sf, weight, color = "#FFFFFF") {
 
   proxy %>%
     addPolylines(group = "divs",
                  data = div.sf,
-                 color =  "#FFFFFF",
+                 color = color,
                  weight = weight,
                  opacity = 1,
                  options = pathOptions(pane = "div")
-                 )
+    )
 }
+
+
+#' add.div_index.wrapper
+#'
+#' Wrapper fcn that just identifies what/if any column to color by for each division
+#' layer based on div.param.Index, and passes arguments onto mapping fcn.
+add.div_index.wrapper <- function(proxy, div, div.str) {
+
+  # escape if no divs
+  if(nrow(div) == 0) return()
+
+  div.param.index <- div.param.Index[div.param.Index$div.name == div.str, ]
+
+  proxy %>%
+    leaflet.add_division_layer(div,
+                               div.name = div.str,
+                               id_col = div.param.index$id_col,
+                               color_by_column = div.param.index$color_by_column)
+}
+
 
 
 
 # sample plots -----------------------------------------------------------------
 '
 base.gs.choropleth %>%
-  leaflet.add_division_layer(tmp.plc, div.name = "plc", color_col = "NAME")
+  add.div_index.wrapper(tmp.plc, div.str = "places")
 
 
-base.gs.choropleth %>% leaflet.add_division_layer(tmp.redlining,
-                             div.name = "redlining",
-                             color_col = "holc_grade")
+base.gs.choropleth %>%
+  add.div_index.wrapper(tmp.redlining,
+                             div.str = "redlining")
+
 '
+
+
+

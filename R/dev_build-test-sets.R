@@ -26,26 +26,13 @@ tmp.pal <- colorFactor(viridis::plasma(7),
                        tmp.cts$binned_x)
 
 
-# visual tests -----------------------------------------------------------------
+# for visual tests -----------------------------------------------------------------
+
 base.gs.choropleth <-
-  leaflet() %>%
-  addTiles() %>%
+  create_leaflet_base() %>%
   choropleth_draw(tmp.cts, "cts",
                   tmp.tooltips, tmp.pal,
                   opacity_from_pop.dens = T,
                   stroke = F)
 
-base.gs.choropleth
-
-base.gs.choropleth %>%
-  leaflet.add_division_layer(tmp.plc,
-                             div.name = "plc",
-                             color_col = "NAME"
-                             )
-
-
-base.gs.choropleth %>%
-  leaflet.add_division_layer(tmp.redlining,
-                             div.name = "redlining",
-                             color_col = "holc_grade")
 

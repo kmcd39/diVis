@@ -4,18 +4,19 @@ library(DT)
 
 # module ui --------------------------------------------------------------------
 
-#' geoseg_ui UI Function
+#' mod_geoseg_ui UI Function
 #'
 #' @description Module to define UI for manipulating the output dataset used
 #'   throughout most of the app.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#' @param selectables Selectable options. Likely as
+#' @param selectables Selectable options, probably as generated from
+#'   params/selectables script.
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-geoseg_ui <- function(id, selectables){
+mod_geoseg_ui <- function(id, selectables){
   ns <- NS(id)
 
   tagList(
@@ -23,7 +24,7 @@ geoseg_ui <- function(id, selectables){
     selectInput(inputId = ns("outcome"),
                 label = strong("Outcome"),
                 choices = selectables$outcomes,
-                selected = defaults$outcome # selection is initialized to default on server side so that av_agg and av_ind can also intitialize.
+                selected = defaults$outcome
     ),
 
     # INDICATOR --
@@ -53,7 +54,7 @@ geoseg_ui <- function(id, selectables){
 
 # module server ----------------------------------------------------------------
 
-#' geoseg_server UI Function
+#' mod_geoseg UI Function
 #'
 #' @description Module to define UI for manipulating the output dataset used
 #'   throughout most of the app.
@@ -66,7 +67,7 @@ geoseg_ui <- function(id, selectables){
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-geoseg_server <- function(id, gs.colors = viridis::viridis(7)) {
+mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
 
   moduleServer(id, function(input, output, session) {
 
@@ -74,6 +75,13 @@ geoseg_server <- function(id, gs.colors = viridis::viridis(7)) {
     gs.out <- reactiveVal(NULL)
     gs.palette <- reactiveVal(NULL)
 
+
+    # reset to devaults observer
+    observeEvent(input$reset_to_defaults, {
+
+    })
+
+    # update returned reactives
     observeEvent( list(input$outcome, input$indicator,
                        input$region_type, input$pop_weighted), {
 
@@ -85,6 +93,7 @@ geoseg_server <- function(id, gs.colors = viridis::viridis(7)) {
                          domain = gs.out()$binned_x)
       gs.palette(pal)
     })
+
 
     return(list(
       dat = gs.out,
@@ -100,7 +109,7 @@ base.app <- function() {
 
   # ui ---------------------------------------------------------------------------
   ui <- fluidPage(
-    geoseg_ui("gs", selectables),
+    mod_geoseg_ui("gs", selectables),
     DT::dataTableOutput("out")
     #verbatimTextOutput("out")
   )
@@ -109,8 +118,7 @@ base.app <- function() {
   server <- function(input, output, session) {
 
     c(v, pal) %<-%
-      geoseg_server("gs")
-
+      mod_geoseg("gs")
 
     # output$out <- renderPrint(v())
     output$out <- DT::renderDataTable({

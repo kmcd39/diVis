@@ -1,11 +1,10 @@
-# source("R/modules/mod_geoseg_leaflet.R")
+
 
 # server -----------------------------------------------------------------
 server <- function(input, output, session) {
 
-
   # global reactives -------------------------------------------------------------
-  #show_CTs <- reactiveVal(NULL) # set to sf representing CTs to show--- NULL when showing larger areas
+
 
 
   # render base leaflet & define proxy -------------------------------------------
@@ -32,7 +31,7 @@ server <- function(input, output, session) {
 
   # parse core input using geoseg module
   c(gs.out, gs.palette) %<-%
-    geoseg_server("gs")
+    mod_geoseg("gs")
 
   # send to map using leaflet module
   mod_geoseg_leaflet("gs", gs.out, show_CTs, gs.palette, prox)
@@ -44,9 +43,16 @@ server <- function(input, output, session) {
   # division overlay module
   mod_div_overlay_server("gs", show_CTs, prox)
 
-  #observe({
-  #  print(head(show_CTs()))
-  #})
+  # filter population module
+  pop.filtered.gs <-
+    mod_population.filter("gs", gs.out)
+
+  # point histogram module
+  test <-
+    mod_point.histogram("gs", pop.filtered.gs, gs.palette,
+                        hilite.point = reactiveVal(NULL), change_in = FALSE)
+
+
   }
 
 

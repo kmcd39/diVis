@@ -96,7 +96,7 @@ leaflet.app <- function() {
 
   # ui ---------------------------------------------------------------------------
   ui <- fluidPage(
-    geoseg_ui("gs", selectables),
+    mod_geoseg_ui("gs", selectables),
     leafletOutput("map", height = 560)
     #verbatimTextOutput("out")
   )
@@ -120,7 +120,7 @@ leaflet.app <- function() {
 
     # parse core input using geoseg module
     c(gs.out, gs.palette) %<-%
-      geoseg_server("gs" )
+      mod_geoseg("gs" )
 
     # send to map using leaflet module
     mod_geoseg_leaflet("gs", gs.out, show_CTs = reactiveVal(NULL), gs.palette, prox)
