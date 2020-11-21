@@ -1,7 +1,7 @@
 
 
 # server -----------------------------------------------------------------
-server <- function(input, output, session) {
+gs_server <- function(input, output, session) {
 
   # global reactives -------------------------------------------------------------
 
@@ -59,7 +59,7 @@ server <- function(input, output, session) {
 # launch -----------------------------------------------------------------------
 #shinyApp(ui, server)
 full.app <- function() {
-  shinyApp(ui, server)
+  shinyApp(gs_ui, gs_server)
 }
 
 full.app()

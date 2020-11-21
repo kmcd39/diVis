@@ -25,7 +25,6 @@ tmp.tooltips <- make_tooltips(simul.input, tmp.cts, F)
 tmp.pal <- colorFactor(viridis::plasma(7),
                        tmp.cts$binned_x)
 
-
 # for visual tests -----------------------------------------------------------------
 
 base.gs.choropleth <-

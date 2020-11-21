@@ -79,6 +79,12 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
     # reset to devaults observer
     observeEvent(input$reset_to_defaults, {
 
+      # defaults defined along w/ other options in params/selectables.
+      purrr::map(names(defaults),
+                 ~updateSelectizeInput(session, .,
+                                       selected = defaults[[.]])
+      )
+
     })
 
     # update returned reactives
@@ -111,7 +117,6 @@ base.app <- function() {
   ui <- fluidPage(
     mod_geoseg_ui("gs", selectables),
     DT::dataTableOutput("out")
-    #verbatimTextOutput("out")
   )
 
   # server -----------------------------------------------------------------------
@@ -120,7 +125,7 @@ base.app <- function() {
     c(v, pal) %<-%
       mod_geoseg("gs")
 
-    # output$out <- renderPrint(v())
+    # datatable for straightforward test output
     output$out <- DT::renderDataTable({
       req(!is.null(v()))
       v(select(tibble(v()), setdiff(colnames(v()), c("x", "geometry")), "geometry"))

@@ -1,4 +1,4 @@
 source("gs_ui.R")
 source("gs_server.R")
 
-shinyApp(ui, server)
+shinyApp(gs_ui, gs_server)
