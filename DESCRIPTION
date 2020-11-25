@@ -19,3 +19,5 @@ Collate: data-raw/cattr.R data-raw/geo-list.R dev/setting up pkg.R R/data.R
     R/mod_parse.geometries_server.R R/mod_prep.data_server.R
     R/mod_prep.data_ui.R R/server.R R/ui-params_selectables.R R/ui.R
     tests/testthat.R tests/testthat/test-flow-fcns_region-parsing.R
+URL: https://github.com/kmcd39/diVis
+BugReports: https://github.com/kmcd39/diVis/issues
