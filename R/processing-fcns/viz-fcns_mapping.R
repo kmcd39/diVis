@@ -10,6 +10,7 @@
 #' Creates base leaflet and sets options for app. See discussion
 #' https://stackoverflow.com/questions/54667968/controlling-the-z-index-of-a-leaflet-heatmap-in-r/54676391
 #' for addMapPane/zIndex. Or also https://leafletjs.com/examples/map-panes/
+#' @import leaflet
 create_leaflet_base <- function() {
 
   leaflet(options = leafletOptions()) %>%

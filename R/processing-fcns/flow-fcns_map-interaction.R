@@ -4,10 +4,11 @@
 #' Translates a click or hover on a leaflet polygon to the row
 #' representing the clicked region.
 #' @param cursor_data list as returned from input$map_shape_click or hover.
-#' @param map.layer sf object on leaflet map.
+#' @param map.layer sf object from leaflet map.
+#' @export
 click.hover_2region <- function(cursor_data, map.layer){
 
-  if(is.null(cursor_data) | is.null(map.layer()))
+  if(is.null(cursor_data) | is.null(map.layer))
     return(NULL)
 
   interaction.point <- st_sfc(
@@ -15,10 +16,11 @@ click.hover_2region <- function(cursor_data, map.layer){
                cursor_data$lat))
     , crs = 4326)
 
-  sbgp <- suppressMessages( st_intersects(map.layer()
+  sbgp <- suppressMessages( st_intersects(map.layer
                                           ,interaction.point) )
 
-  out <- map.layer()[lengths(sbgp) > 0, ]
+  out <- map.layer[lengths(sbgp) > 0, ]
+
   if(nrow(out) == 0)
     return(NULL)
   else

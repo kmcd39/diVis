@@ -54,7 +54,7 @@ mod_point.histogram <- function(id,
         cat("transforming data for hist..\n") # (making sure this doesnt run unnecessarily)
 
         to.plot() %>%
-          divFcns::abv_out() %>% # is to.plot() sf to begin w/ ?
+          # divFcns::abv_out() %>% # is to.plot() sf to begin w/ ?
           appHelpers::prep_for_point_hist( bin_denom = 10 ) %>%
           mutate(color = palette()(binned_x)) %>%
           arrange(desc(x)) %>% # do i need this?
@@ -144,10 +144,13 @@ mod_point.histogram <- function(id,
                                  threshold = 10, maxpoints = 1, addDist = T)
       if (nrow(point) != 0)
         dbl.clicked.region(point)
+
+      print(dbl.clicked.region())
     })
 
-    return(dbl.clicked.region)
-
+    # if a region was double-clicked, return that value
+    #if(!is.null(dbl.clicked.region()))
+      return(dbl.clicked.region)
 
     # highlight based on DT selected row -------------------------------
     ' This should be in a DT module
@@ -184,8 +187,8 @@ mod_point.histogram_ui <- function(id){
       style = "position: relative; cursor: default;",
       plotOutput(ns("point.hist"),
                  height = "450px",
-                 # note that the following defines tags to capture user
-                 # interaction, which can be retrieved i.e. through input$plot_hover:
+                 # The following defines tags to capture user interaction, which can
+                 # be retrieved i.e. through input$plot_hover:
                  hover = hoverOpts(ns("plot_hover"), delay = 1, delayType = "throttle"),
                  dblclick = ns("plot_dbl.click"),
                  click = ns("plot_click")),
@@ -213,7 +216,7 @@ point.hist_app <- function() {
     c(gs.out, gs.palette) %<-%
       mod_geoseg("gs" )
 
-    # send to map using leaflet module
+    # show point-hist
     mod_point.histogram("gs", gs.out, gs.palette)
   }
 
@@ -222,4 +225,5 @@ point.hist_app <- function() {
 
 
 # launch -----------------------------------------------------------------------
-point.hist_app()
+
+# point.hist_app()

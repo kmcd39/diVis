@@ -110,7 +110,6 @@ mod_div_overlay_ui <- function(id, div.opts){
 
 # helper fcns in processing-fcns/div-fcns/  ----------------------------------------------------------------------
 
-
 #' get_sf_from.divDat
 #'
 #' Quick helper fcn that transforms string 'x' to 'divDat::x' and evaluates.

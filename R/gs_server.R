@@ -5,7 +5,9 @@ gs_server <- function(input, output, session) {
 
   # global reactives -------------------------------------------------------------
 
-
+  # region can be zoomed into to show CT bkdwn. Option to zoom can happen various
+  # places, so stored globally
+  CT_selection <- reactiveVal(NULL)
 
   # render base leaflet & define proxy -------------------------------------------
   output$map <- renderLeaflet({
@@ -16,7 +18,6 @@ gs_server <- function(input, output, session) {
   # set initial zoom (lower 48 states)
   do.call('fitBounds',
           c(list(map = prox), l48bbox))
-
   # observer for map click + zoom
   # (seems to have to exist in main server call due to leaflet+shiny design )
   leaflet_interaction <- reactiveValues() #clicked_region = NULL, zoom_level = NULL)
@@ -24,6 +25,7 @@ gs_server <- function(input, output, session) {
     leaflet_interaction$click_info <- input$map_shape_click
     leaflet_interaction$zoom_level <- input$map_zoom
   })
+
 
   # -------------------------------------------------------------------------
 
@@ -34,24 +36,32 @@ gs_server <- function(input, output, session) {
     mod_geoseg("gs")
 
   # send to map using leaflet module
-  mod_geoseg_leaflet("gs", gs.out, show_CTs, gs.palette, prox)
+  mod_geoseg_leaflet("gs", gs.out, CT_selection, gs.palette, prox)
 
   # get tract-level data to display, if relevant.
-  show_CTs <-
-    mod_parse_CT("gs", leaflet_interaction, gs.out, show_CTs, prox)
+  CTs_from_leaflet <-
+    mod_parse_CT("gs", leaflet_interaction, gs.out, CT_selection, prox)
 
   # division overlay module
-  mod_div_overlay_server("gs", show_CTs, prox)
+  mod_div_overlay_server("gs", CT_selection, prox)
 
   # filter population module
   pop.filtered.gs <-
     mod_population.filter("gs", gs.out)
 
   # point histogram module
-  test <-
+  CTs_from_hist <-
     mod_point.histogram("gs", pop.filtered.gs, gs.palette,
                         hilite.point = reactiveVal(NULL), change_in = FALSE)
 
+  observeEvent( CTs_from_leaflet(), {
+    cat("updating from leaflet")
+    CT_selection( CTs_from_leaflet() )
+  })
+  #observeEvent( CTs_from_hist(), {
+  #  if(!is.null(CTs_from_hist())) # (don't zoom out due to hist interaction)
+  #    CT_selection( CTs_from_hist() )
+  #})
 
   }
 

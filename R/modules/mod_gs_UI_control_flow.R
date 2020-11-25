@@ -10,14 +10,8 @@
 mod_gs_UI_control_flow <- function(id) {
 
   moduleServer(id, function(input, output, session) {
-
-
     cat("control ui")
-
-
   })
-
-
 }
 
 

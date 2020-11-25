@@ -27,9 +27,8 @@ apply_population_filter <- function( x, pop_range_selection, slider_range = pop_
 
     x %>% filter( population >=
                     appHelpers::format_as.numeric(pop_range_selection[1]) )
-
    } else {
-
+     # otherwise, filter at both ends
     x %>% filter( population <=
                     appHelpers::format_as.numeric(pop_range_selection[2]) &
                     population >=
@@ -54,7 +53,7 @@ mod_population.filter <- function(id, x) {
 
     pop.filtered <- reactiveVal(NULL)
 
-    observeEvent(input$population_slider, {
+    observeEvent(list(x(), input$population_slider), {
 
       pop.filtered(apply_population_filter(x(), input$population_slider))
 

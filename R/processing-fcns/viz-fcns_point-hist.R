@@ -21,7 +21,7 @@ draw_point_hist <- function (prepped_df, var.name = "x", label_interval = 0.2, .
       ggplot(aes(x = interval_numeric,
                  y = ypos,
                  color = color)) +
-      geom_point(na.rm = T, size = 4, position = "identity",
+      geom_point(na.rm = T, size = 4.5, position = "identity",
                  shape = 16, ...) +
       scale_color_identity() +
       scale_x_continuous(name = rlang::sym(var.name),
