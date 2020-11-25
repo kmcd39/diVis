@@ -9,7 +9,7 @@
 #'
 #' Creates base leaflet and sets options for app. See discussion
 #' https://stackoverflow.com/questions/54667968/controlling-the-z-index-of-a-leaflet-heatmap-in-r/54676391
-#' for addMapPane/zIndex. See also https://leafletjs.com/examples/map-panes/
+#' for addMapPane/zIndex. Or also https://leafletjs.com/examples/map-panes/
 create_leaflet_base <- function() {
 
   leaflet(options = leafletOptions()) %>%
@@ -85,47 +85,4 @@ choropleth_draw <- function(leaflet_proxy,
                 )
 }
 
-
-
-
-# likely out of use ------------------------------------------------------------
-
-#' iterative_leaflet_draw
-#'
-#' clear data, get number of iterations, draw first one. Return 0 if there's
-#' only one, otherwise loop through the rest. Idea is that it can smooth out a
-#' render to make loading feel nicer. Passes tooltips and other graphic parameters
-#' to \code{leaflet_draw}. viz-fcns/mapping.
-#' @inheritDotParams leaflet_draw
-#' @param bkdwn_size Number of rows of sf object to draw at a time.
-#' @export
-iterative_choropleth_draw <- function(leaflet_proxy,
-                                      st_df, poly_group = "dat",
-                                      tooltips, pal, ...,
-                                      opacity_from_pop.dens = F,
-                                      bkdwn_size = 50) {
-
-  leaflet_proxy %>% clearGroup(poly_group)
-
-  n_iterations <- ceiling(nrow(st_df) / bkdwn_size )
-
-  # first pass
-  leaflet_proxy %>%
-    choropleth_draw(st_df[1:bkdwn_size, ], poly_group
-                    ,tooltips = tooltips[1:bkdwn_size]
-                    ,pal, ..., opacity_from_pop.dens)
-  # check2end
-  if(n_iterations == 1) return()
-
-  # loop thru.
-  for ( i in 1:(n_iterations - 1)) {
-    step <- i * bkdwn_size
-    subset_index <- (step + 1):(step + bkdwn_size)
-
-    leaflet_proxy %>%
-      choropleth_draw(st_df[subset_index, ], poly_group
-                      ,tooltips = tooltips[subset_index]
-                      ,pal, ..., opacity_from_pop.dens)
-  }
-}
 

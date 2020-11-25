@@ -67,7 +67,7 @@ source.in.dir <- function(srcd) {
 
 map(src.dirs, source.in.dir)
 
-# to get dev sets ----------------------------------------------------------------
+# to get development sets ----------------------------------------------------------------
 
 #  source("R/dev_build-test-sets.R")
 

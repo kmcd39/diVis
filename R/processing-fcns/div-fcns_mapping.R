@@ -52,7 +52,9 @@ other.div.interpolation <- RColorBrewer::brewer.pal(8, "Accent") %>%
 
 # create color fcn -------------------------------------------------------------
 
-divs_needing_color <- div.param.Index[div.param.Index$div.name %in% div.opts & !div.param.Index$color_by_column,]$div.name
+divs_needing_color <-
+  div.param.Index[div.param.Index$div.name %in% div.opts &
+                    !div.param.Index$color_by_column,]$div.name
 
 div.pal <-
   colorFactor(div.colors,
@@ -65,7 +67,7 @@ div.pal <-
 
 #' long.lat_buffer
 #'
-#' \code{st_buffer} expects non long/lat geometries. This is a wrapper to convert an sf
+#' \code{st_buffer} expects non-long/lat geometries. This is a wrapper to convert an sf
 #' object to a metered projection, apply \code{st_buffer}, and then transform back into long/lat
 #' @param sf object to buffer
 #' @param buffer amount.

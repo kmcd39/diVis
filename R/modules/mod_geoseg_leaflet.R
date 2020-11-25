@@ -1,14 +1,4 @@
 
-# helpers ----------------------------------------------------------------------
-
-#' choropleth_wrapper
-#'
-#' Wraps \code{iterative_choropleth_draw} with appropriate arguments based on whether
-#' CTs or larger regions are being mapped. Assumes relevant datasets are present in
-#' the environment; should only be called from module below.
-#choropleth_wrapper <- function() {}
-
-
 # server module ----------------------------------------------------------------
 
 #' mod_geoseg_leaflet server Function
@@ -16,7 +6,7 @@
 #' @description Module to define server-side leaflet rendering
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#' @param to.map Dataset prepped to map. Output of \code{mod_geoseg} module.
+#' @param to.map Dataset prepped to map. Maybe output of \code{mod_geoseg} module.
 #' @param map.palette Leaflet fcn as colorFactor to interpolate to colors
 #' @param proxy leaflet proxy object.
 #'
@@ -56,7 +46,7 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
                                             domain = to.map$binned_x)
                    }
 
-                   # whether to do fill opacity by pop.density on leaflet:
+                   # whether to use population density to set layer opacity.
                    opacity_from_pop.dens <- showing_cts
 
                    # populate map -----------------------------------------------------------------
@@ -81,7 +71,7 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
                                                weight = .5
                                                )
                    # ?leaflet::addPolygons
-                   # getting events from leaflet interaction:
+                   # for getting events from leaflet interaction:
                    # https://rstudio.github.io/leaflet/shiny.html
                    # i.e., input$MAPID_OBJCATEGORY_EVENTNAME
                  })
@@ -130,5 +120,5 @@ leaflet.app <- function() {
 }
 
 
-# launch -----------------------------------------------------------------------
+# run (test) -----------------------------------------------------------------------
 # leaflet.app()
