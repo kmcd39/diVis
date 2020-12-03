@@ -2,6 +2,61 @@ library(DT)
 # helpers ----------------------------------------------------------------------
 
 
+# module server ----------------------------------------------------------------
+
+#' mod_geoseg server Function
+#'
+#' @description Module to define server for manipulating the output dataset used
+#'   throughout most of the app.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#' @param gs.colors avail colors to generate color function from.
+#'
+#' @noRd
+#'
+#' @importFrom shiny NS tagList
+mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
+
+  moduleServer(id, function(input, output, session) {
+
+    # module reactives
+    gs.out <- reactiveVal(NULL)
+    gs.palette <- reactiveVal(NULL)
+
+
+    # reset to devaults observer
+    observeEvent(input$reset_to_defaults, {
+
+      # defaults defined along w/ other options in params/selectables.
+      purrr::map(names(defaults),
+                 ~updateSelectizeInput(session, .,
+                                       selected = defaults[[.]])
+      )
+
+    })
+
+    # update returned reactives
+    observeEvent( list(input$outcome, input$indicator,
+                       input$region_type, input$pop_weighted), {
+
+      # call wrapper fcn to parse data; set output to reactive
+      gs.out( parse.geoseg.data(input) )
+
+      # generate color fcn
+      pal <- colorFactor(gs.colors,
+                         domain = gs.out()$binned_x)
+      gs.palette(pal)
+    })
+
+    return(list(
+      dat = gs.out,
+      palette = gs.palette)
+    )
+
+  })
+}
+
+
 # module ui --------------------------------------------------------------------
 
 #' mod_geoseg_ui UI Function
@@ -51,63 +106,6 @@ mod_geoseg_ui <- function(id, selectables){
   )
 }
 
-
-# module server ----------------------------------------------------------------
-
-#' mod_geoseg UI Function
-#'
-#' @description Module to define UI for manipulating the output dataset used
-#'   throughout most of the app.
-#'
-#' @param id,input,output,session Internal parameters for {shiny}.
-#' @param gui_inputs If add'l options from user to adjust visual
-#'   settings from user are provided, pass on those settings.
-#' @param gs.colors avail colors to generate color function from.
-#'
-#' @noRd
-#'
-#' @importFrom shiny NS tagList
-mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
-
-  moduleServer(id, function(input, output, session) {
-
-    # module reactives
-    gs.out <- reactiveVal(NULL)
-    gs.palette <- reactiveVal(NULL)
-
-
-    # reset to devaults observer
-    observeEvent(input$reset_to_defaults, {
-
-      # defaults defined along w/ other options in params/selectables.
-      purrr::map(names(defaults),
-                 ~updateSelectizeInput(session, .,
-                                       selected = defaults[[.]])
-      )
-
-    })
-
-    # update returned reactives
-    observeEvent( list(input$outcome, input$indicator,
-                       input$region_type, input$pop_weighted), {
-
-      # call wrapper fcn to parse data; set output to reactive
-      gs.out( parse.geoseg.data(input) )
-
-      # generate color fcn
-      pal <- colorFactor(gs.colors,
-                         domain = gs.out()$binned_x)
-      gs.palette(pal)
-    })
-
-
-    return(list(
-      dat = gs.out,
-      palette = gs.palette)
-    )
-
-  })
-}
 
 # modularized app --------------------------------------------------------------
 

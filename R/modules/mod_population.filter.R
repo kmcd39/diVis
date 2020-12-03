@@ -55,7 +55,8 @@ mod_population.filter <- function(id, x) {
 
     observeEvent(list(x(), input$population_slider), {
 
-      pop.filtered(apply_population_filter(x(), input$population_slider))
+      # parse input and set to reactive
+      pop.filtered( apply_population_filter(x(), input$population_slider) )
 
     })
     return(pop.filtered)

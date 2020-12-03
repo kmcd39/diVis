@@ -16,68 +16,65 @@
 #' @import sf leaflet
 mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
-  moduleServer(id,
-               function(input, output, session) {
+  moduleServer(id, function(input, output, session) {
 
-                 observeEvent( list(gs.dat(), show_CTs()), {
+    observeEvent( list(gs.dat(), show_CTs()), {
 
-                   req(!is.null(gs.dat()))
+      req(!is.null(gs.dat()))
 
+      # If not showing CTs, clear CTs and set params to map larger areas.
+      showing_cts <- !is.null(show_CTs())
+      if( !showing_cts ) {
+        #proxy %>% clearGroup("cts")
 
-                   # If not showing CTs, clear CTs and set params to map larger areas.
-                   showing_cts <- !is.null(show_CTs())
-                   if( !showing_cts ) {
-                     #proxy %>% clearGroup("cts")
+        to.map <- gs.dat()
+        fully_zoomed <- F
+        opacities <- 0.6
+        #grp.name <- "dat"
+        map.pal <- gs.palette()
 
-                     to.map <- gs.dat()
-                     fully_zoomed <- F
-                     opacities <- 0.6
-                     #grp.name <- "dat"
-                     map.pal <- gs.palette()
+      } else if( showing_cts ) {
+        #proxy %>% clearGroup("dat")
 
-                   } else if( showing_cts ) {
-                     #proxy %>% clearGroup("dat")
+        to.map <- show_CTs()
+        fully_zoomed <- T
+        #opacities <- appHelpers::col.to.opacity(to.map$pop.dens)
+        #grp.name <- "cts"
+        map.pal <- colorFactor(viridis::plasma(7),
+                               domain = to.map$binned_x)
+      }
 
-                     to.map <- show_CTs()
-                     fully_zoomed <- T
-                     #opacities <- appHelpers::col.to.opacity(to.map$pop.dens)
-                     #grp.name <- "cts"
-                     map.pal <- colorFactor(viridis::plasma(7),
-                                            domain = to.map$binned_x)
-                   }
+      # whether to use population density to set layer opacity.
+      opacity_from_pop.dens <- showing_cts
 
-                   # whether to use population density to set layer opacity.
-                   opacity_from_pop.dens <- showing_cts
+      # populate map -----------------------------------------------------------------
+      tooltips <- make_tooltips(input, to.map, click2zoom_enabled = !fully_zoomed)
 
-                   # populate map -----------------------------------------------------------------
-                   tooltips <- make_tooltips(input, to.map, click2zoom_enabled = !fully_zoomed)
+      # add legend
+      proxy %>% add_legend( to.map, map.pal,
+                            legend.title = make_display_label(input,
+                                                              showing_cts = showing_cts) )
 
-                   # add legend
-                   proxy %>% add_legend( to.map, map.pal,
-                                         legend.title = make_display_label(input,
-                                                                           showing_cts = showing_cts) )
+      # clear old shapes
+      proxy %>% clearGroup("gs.dat")
 
-                   # clear old shapes
-                   proxy %>% clearGroup("gs.dat")
-
-                   # add shapes
-                   proxy %>%  # iterative_choropleth_draw
-                     choropleth_draw(to.map, grp.name = "gs.dat",
-                                               tooltips = tooltips,
-                                               pal = map.pal,
-                                               opacity_from_pop.dens = opacity_from_pop.dens,
-                                               #fillOpacity = opacities,
-                                               color = "white",
-                                               weight = .5
-                                               )
-                   # ?leaflet::addPolygons
-                   # for getting events from leaflet interaction:
-                   # https://rstudio.github.io/leaflet/shiny.html
-                   # i.e., input$MAPID_OBJCATEGORY_EVENTNAME
-                 })
-               })
+      # add shapes
+      proxy %>%  # iterative_choropleth_draw
+        choropleth_draw(to.map, grp.name = "gs.dat",
+                        tooltips = tooltips,
+                        pal = map.pal,
+                        opacity_from_pop.dens = opacity_from_pop.dens,
+                        #fillOpacity = opacities,
+                        color = "white",
+                        weight = .5
+        )
+      # ?leaflet::addPolygons
+      # for getting events from leaflet interaction:
+      # https://rstudio.github.io/leaflet/shiny.html
+      # i.e., input$MAPID_OBJCATEGORY_EVENTNAME
+    })
+  })
 }
-
 
 
 # minimalist geoseg leaflet app ------------------------------------------------
@@ -96,9 +93,7 @@ leaflet.app <- function() {
 
     # render base leaflet & define proxy -------------------------------------------
     output$map <- renderLeaflet({
-      leaflet() %>%
-        addProviderTiles(providers$CartoDB.Voyager,
-                         options = providerTileOptions(noWrap = TRUE))
+      create_leaflet_base()
     })
     # set proxy
     prox <- leafletProxy("map")
@@ -113,7 +108,9 @@ leaflet.app <- function() {
       mod_geoseg("gs" )
 
     # send to map using leaflet module
-    mod_geoseg_leaflet("gs", gs.out, show_CTs = reactiveVal(NULL), gs.palette, prox)
+    mod_geoseg_leaflet("gs", gs.out,
+                       show_CTs = reactiveVal(NULL),
+                       gs.palette, prox)
   }
 
   shinyApp(ui, server)

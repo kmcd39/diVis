@@ -1,7 +1,29 @@
 
 # helpers ----------------------------------------------------------------------
 
+#' add.hist.hilite
+#'
+#' Adds hilight circle to ggplot
+add.hist.hilite <- function(hilite.pt, ...) {
 
+  if(is.null(hilite.pt) || nrow(hilite.pt) == 0)
+    return(NULL)
+
+  geom_point(data = hilite.pt, shape = 1, stroke = 2.4,
+             color = "#9EC3FF", size = 4, position = "identity",
+             ...)
+}
+
+
+add.change_in.line <- function(change_in, ...) {
+
+  if(!change_in)
+    return(NULL)
+
+  geom_vline(xintercept=0,
+             linetype="dotted",
+             color = "#235e66")
+}
 
 # point.hist SERVER------------------------------------------------------------
 
@@ -14,6 +36,7 @@
 #' @param to.plot Dataset prepped to map. Output of \code{mod_geoseg}, or
 #'   \code{mod_population.filter} after that
 #' @param palette Color fcn to use for interpolation.
+#' @param selection.reactive server-wide reactive to set to selected region.
 #' @param hilite.point To pass info from outside module to highlight a point.
 #' @param change_in Changes histogram visualize to emphasize incr/decr if true.
 #'
@@ -21,12 +44,13 @@
 #'
 #' @importFrom htmltools HTML
 mod_point.histogram <- function(id,
-                                to.plot, palette,
-                                hilite.point = reactiveVal(NULL), change_in = FALSE) {
+                                gs.dat, palette,
+                                selection.reactive = reactiveVal(NULL),
+                                hilite.point = reactiveVal(NULL),
+                                change_in = FALSE,
+                                zoom.to.map.enabled = TRUE) {
 
   moduleServer(id, function(input, output, session) {
-
-
 
     # global reactives -------------------------------------------------------------
     # called in multiple places or eventually returned
@@ -34,76 +58,45 @@ mod_point.histogram <- function(id,
     hist.plot <- reactiveVal(NULL)
 
     display.label <- reactive({
-      cat("making display label..\n")
+      #cat("making display label..\n")
       make_display_label(input)
     })
 
-    # to pass onto other modules if desired
-    dbl.clicked.region <- reactiveVal(NULL)
-
-
-    # update plot data -------------------------------------------------------------
-    observeEvent(to.plot(), {
+    # Prep data when input changes. --------------------
+    observeEvent(gs.dat(), {
 
       # no hilite after redraw
       hilite.point(NULL)
 
-      # prep data and set hist.dat reactive
       hist.dat({
+        # cat("transforming data for hist..\n")
 
-        cat("transforming data for hist..\n") # (making sure this doesnt run unnecessarily)
-
-        to.plot() %>%
-          # divFcns::abv_out() %>% # is to.plot() sf to begin w/ ?
+        gs.dat() %>%
+          # divFcns::abv_out() %>% # is input gs.dat() sf to begin w/ ?
           appHelpers::prep_for_point_hist( bin_denom = 10 ) %>%
           mutate(color = palette()(binned_x)) %>%
           arrange(desc(x)) %>% # do i need this?
           rename(!!display.label() := x)
       })
-
-      # create base ggplot layer
-      hist.plot({
-        draw_point_hist( hist.dat(),
-                         var.name = display.label())
-      })
-
-    })
-
-
-    # check for hilite, add to plot if appropriate
-    observeEvent(hilite.point(), {
-
-      if(is.null(hilite.point()) || nrow(hilite.point()) == 0)
-        return(NULL)
-
-      hist.plot(
-        hist.plot() +
-          geom_point(data = hilite.point(), shape = 1, stroke = 2.4,
-                     color = "#9EC3FF", size = 4, position = "identity")
-        )
-    })
-
-    # add vertical line to emphasize incr/decr if appropriate.
-    observeEvent(change_in, {
-      if(change_in)
-        hist.plot(
-          hist.plot() +
-            geom_vline(xintercept=0,
-                       linetype="dotted",
-                       color = "#235e66")
-        )
     })
 
     # send to plot
     output$point.hist <- renderPlot({
-      hist.plot()
+
+      #ensure data has finished prepping
+      req(display.label() %in% colnames(hist.dat()))
+
+      draw_point_hist( hist.dat(),
+                       var.name = display.label()) +
+        add.hist.hilite(hilite.point()) +
+        add.change_in.line(change_in)
     })
 
     # ------------------------------------------------------------------------------
 
     # interactivity -----------------------------------------------------
 
-    # tooltip hover
+    # tooltip on hover
     output$point.hist_tooltip <- renderUI({
 
       # this solution is heavily indebted to example here:
@@ -118,7 +111,6 @@ mod_point.histogram <- function(id,
       tooltip_css <- appHelpers::get_tooltip_css(cursor_coords,
                                                  bkgd_color =  "rgba(30,30,30,0.85)",
                                                  text_color = "#FFF")
-
       # actual tooltip created as wellPanel
       shiny::wellPanel(
         style = tooltip_css,
@@ -137,20 +129,36 @@ mod_point.histogram <- function(id,
       #selectRows(dataTableProxy("dt"), NULL) # need to send in DT proxy if I want this.
     })
 
-    # double-click to zoom ----------------------------------------------------
+    # double-click to zoom & switch tab to map --------------------------------
     observeEvent(input$plot_dbl.click, {
 
-      point <- shiny::nearPoints(hist.dat(), input$plot_dbl.click,
+      req(zoom.to.map.enabled)
+
+      clicked.point <- shiny::nearPoints(hist.dat(), input$plot_dbl.click,
                                  threshold = 10, maxpoints = 1, addDist = T)
-      if (nrow(point) != 0)
-        dbl.clicked.region(point)
+      #browser()
 
-      print(dbl.clicked.region())
+      if (nrow(clicked.point) != 0) {
+        region <- gs.dat() %>%
+          filter(region.type %in% clicked.point$region.type &
+                   region.id %in% clicked.point$region.id)
+
+        # switch tab to map and zoom to region
+        updateSelectInput(session, "main_display",
+                          selected = "map")
+
+        region.coords <- st_centroid(region)$geometry %>% st_coordinates()
+
+        leaflet::flyTo(proxy,
+                       lng = region.coords[,"X"],
+                       lat = region.coords[,"Y"],
+                       zoom = 8, # minimum_ct_zoom,
+                       options = list(duration = .5)
+                       )
+
+        selection.reactive(region)
+        }
     })
-
-    # if a region was double-clicked, return that value
-    #if(!is.null(dbl.clicked.region()))
-      return(dbl.clicked.region)
 
     # highlight based on DT selected row -------------------------------
     ' This should be in a DT module
@@ -210,7 +218,7 @@ point.hist_app <- function() {
   )
 
   # server -----------------------------------------------------------------
-  server <- function(input, output, session) {
+  server <- function(input,output, session) {
 
     # parse core input using geoseg module
     c(gs.out, gs.palette) %<-%

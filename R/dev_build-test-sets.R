@@ -11,10 +11,7 @@ simul.input <- list(outcome = test.var,
 
 tmp <- parse.geoseg.data(simul.input) %>% filter(region.name == "Philadelphia")
 
-tmp.cts <- get_CTs_by_region(tmp) %>% rename("x" = !!test.var)
-
-tmp.cts <- bin_and_format(tmp.cts)
-tmp.cts <- st_sf(tmp.cts)
+tmp.cts <- get_CTs_by_region(tmp, simul.input$outcome)
 
 # divs
 tmp.plc <- divDat::plc %>% st_transform(st_crs(tmp.cts)) %>% st_intersection(st_union(tmp.cts))

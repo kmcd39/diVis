@@ -1,4 +1,37 @@
 
+# helper -----------------------------------------------------------------------
+
+
+#' click.hover_2region
+#'
+#' Translates a click or hover on a leaflet polygon to the row
+#' representing the clicked region.
+#' @param cursor_data list as returned from input$map_shape_click or hover.
+#' @param map.layer sf object from leaflet map.
+#' @export
+click.hover_2region <- function(cursor_data, map.layer){
+
+  if(is.null(cursor_data) || is.null(map.layer))
+    return(NULL)
+
+  interaction.point <- st_sfc(
+    st_point(c(cursor_data$lng,
+               cursor_data$lat))
+    , crs = 4326)
+
+  sbgp <- suppressMessages( st_intersects(map.layer
+                                          ,interaction.point) )
+
+  out <- map.layer[lengths(sbgp) > 0, ]
+
+  if(nrow(out) == 0)
+    return(NULL)
+  else
+    return(out)
+}
+
+
+
 # server module ----------------------------------------------------------------
 
 #' mod_parse_leaflet.interaction server Function
@@ -8,30 +41,33 @@
 #'   the clicked region, to pass on to other modules.
 #'
 #' @inheritParams mod_geoseg_leaflet
+#' @param leaflet_interaction reactiveValues containing zoom
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
-mod_parse_leaflet.interaction <- function(id, leaflet_interaction, gs.out, show_CTs, proxy) {
+mod_parse_leaflet.interaction <- function(id,
+                                          gs.out, show_CTs,
+                                          leaflet_interaction,
+                                          selection.reactive, # = reactiveVal(NULL),
+                                          proxy) {
 
   moduleServer(id, function(input, output, session) {
 
     # module params
     minimum_ct_zoom <- 8
 
-    # module reactive
-    return.region <- reactiveVal(NULL)
-
     # zoom observer ----------------------------------------------------------------
-    observeEvent(leaflet_interaction$zoom_level, {
+    observeEvent( leaflet_interaction$zoom_level, {
       #cat("zoom level", leaflet_interaction$zoom_level, "\n")
 
-      # if you ~were~ showing CTs and you zoom out, start showing larger areas
-      if( !is.null(show_CTs()) && leaflet_interaction$zoom_level < minimum_ct_zoom)
-        return.region(NULL)
+      # if you ~were~ showing CTs and you zoom out, clear region to return
+      if( !is.null(show_CTs()) && leaflet_interaction$zoom_level < minimum_ct_zoom ) {
+        selection.reactive(NULL)
+        #show_CTs(NULL)
+      }
     })
-
 
     # click observer ---------------------------------------------------------------
     observeEvent(leaflet_interaction$click_info, {
@@ -39,60 +75,21 @@ mod_parse_leaflet.interaction <- function(id, leaflet_interaction, gs.out, show_
       clicked.region <- click.hover_2region(leaflet_interaction$click_info,
                                             map.layer = gs.out())
 
+      # print(clicked.region)
+
       # if you weren't previously showing CTs, do so for clicked region, and zoom in.
-      if( is.null(show_CTs()) && !is.null(region()) )
-        return.region( clicked.region )
+      if( is.null(show_CTs()) && !is.null(clicked.region) ) {
+        leaflet::flyTo(proxy,
+                       lng = leaflet_interaction$click_info$lng,
+                       lat = leaflet_interaction$click_info$lat,
+                       zoom = minimum_ct_zoom,
+                       options = list(duration = .5)
+                       )
+        selection.reactive( clicked.region )
+      }
     })
+    #return(return.region)
 
-    return(return.region)
-
-    # move to region -> CTs helper, called from main wrapper ------------------------
-'
-    # update zoom to click location
-    leaflet::flyTo(proxy,
-                   lng = leaflet_interaction$click_info$lng,
-                   lat = leaflet_interaction$click_info$lat,
-                   zoom = minimum_ct_zoom
-                   ,options = list(duration = .5)
-    )
-
-    region <- reactive({
-      click.hover_2region(leaflet_interaction$click_info, map.layer = gs.out)
-    })
-
-
-    # new show_CTs status
-    gen_CTs <- isolate(reactive({
-      mapCTs <- get_CTs_by_region(region()) %>% rename("x" = !!rlang::sym(input$outcome))
-
-      mapCTs <- bin_and_format(mapCTs)
-      mapCTs <- st_sf(mapCTs)
-      return(mapCTs)
-    }))
-
-
-    # observer for gs.inputs that affect mapped CTs
-    observeEvent( list(input$outcome, input$pop_weighted), {
-      req(show_CTs())
-      new.show_CTs(gen_CTs())
-    })
-
-    # send region name to text box
-    output$zoomin.region <- renderText({
-      req(leaflet_interaction$zoom_level)
-      if(leaflet_interaction$zoom_level >= minimum_ct_zoom)
-        region()$region.name
-      else
-        ""
-      })
-
-    return(new.show_CTs)
-    '
-    #return(list(new.show_CTs,
-    #            reactive(create_CT_color.fcn(
-    #              map.cts = new.show_CTs(),
-    #              x = input$outcome
-    #            ))))
   })
 }
 

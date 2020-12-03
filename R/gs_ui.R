@@ -20,6 +20,7 @@ gs_ui <- fluidPage(
 
       mainPanel(
         shinydashboard::tabBox(id = "main_display",
+        #tabsetPanel(id = "main_display",
                                selected = "map",
                                width = 12,
                                height = "100%",
@@ -31,7 +32,8 @@ gs_ui <- fluidPage(
                                                       height = output.height),
 
                                         # textbox to show region name when zoomed in
-                                        mod_parse_CT_ui("gs"),
+                                        mod_region2CTs_ui("gs"),
+                                        # mod_parse_CT_ui("gs"),
 
                                         # div overlay UI
                                         mod_div_overlay_ui("gs", div.opts)),
@@ -43,8 +45,9 @@ gs_ui <- fluidPage(
                                         mod_point.histogram_ui("gs"),
                                         mod_population.filter_ui("gs"))
         ),
-        width = 12-sidebar.width
+        width = 12 - sidebar.width
       )
+
     )
   )
 
