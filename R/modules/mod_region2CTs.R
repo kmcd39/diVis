@@ -43,17 +43,36 @@ get_CTs_by_region <- function(region, outcome, ...) {
 #' @import sf leaflet
 mod_region2CTs <- function(id,
                            region.reactive,
-                           CT.reactive
-                           ) {
+                           CT.reactive,
+                           proxy,
+                           minimum_ct_zoom = 8
+) {
 
   moduleServer(id, function(input, output, session) {
 
     # update CT reactive when region changes ---------------------------------
     observeEvent(region.reactive(), {
 
+      # set reactive
       CT.reactive(
         get_CTs_by_region( region.reactive(), input$outcome )
       )
+      # if not NULL, also zoom to region
+      if(!is.null(region.reactive())) {
+
+        # zoom to region
+        region.coords <-
+          suppressWarnings(
+            st_centroid(region.reactive())$geometry) %>% st_coordinates()
+
+        leaflet::flyTo(proxy,
+                       lng = region.coords[,"X"],
+                       lat = region.coords[,"Y"],
+                       zoom = minimum_ct_zoom,
+                       options = list(duration = .5)
+        )
+      }
+
     }, ignoreNULL = F)
 
     # send region name to text box  ------------------------------------------
@@ -61,7 +80,7 @@ mod_region2CTs <- function(id,
       req(region.reactive())
 
       region.reactive()$region.name
-      })
+    })
   })
 }
 

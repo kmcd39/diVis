@@ -1,5 +1,5 @@
 
-
+library(shinydashboard)
 # server -----------------------------------------------------------------
 gs_server <- function(input, output, session) {
 
@@ -51,10 +51,11 @@ gs_server <- function(input, output, session) {
                                 selection.reactive = selected_region,
                                 prox)
 
-  # updates selected_CTs when selected_region is updated
+  # updates selected_CTs and sets zoom when selected_region is updated
   mod_region2CTs("gs",
                  region.reactive = selected_region,
-                 CT.reactive = selected_CTs)
+                 CT.reactive = selected_CTs,
+                 prox)
 
   # division overlay module
   mod_div_overlay_server("gs", selected_CTs, prox)
@@ -63,29 +64,21 @@ gs_server <- function(input, output, session) {
   pop.filtered.gs <-
     mod_population.filter("gs", gs.out)
 
-  # point histogram module
-  #observe({
-  #  req(input$main_display == "distribution")
-    mod_point.histogram("gs",
-                        pop.filtered.gs,
-                        gs.palette,
-                        selection.reactive = selected_region,
-                        hilite.point = reactiveVal(NULL),
-                        change_in = FALSE)
-  #})
 
+  mod_point.histogram("gs",
+                      pop.filtered.gs,
+                      gs.palette,
+                      selection.reactive = selected_region,
+                      hilite.point = reactiveVal(NULL),
+                      change_in = FALSE)
 
-
-  #observeEvent(region_picks$from_leaflet(), { #reactiveValuesToList(region_picks), {
-    #browser()
-  #  print("!!!")
-   # CT_selection <-
-    #  mod_region2CTs("gs", region_picks)
-  #}, ignoreInit = T)
-  #observeEvent( CTs_from_hist(), {
-  #  if(!is.null(CTs_from_hist())) # (don't zoom out due to hist interaction)
-  #    CT_selection( CTs_from_hist() )
-  #})
+  # happens outside of module because dealing across UI elements
+  observeEvent(selected_region(), {
+    # switches to map tab when a zoom region is selected from different tab
+    if(!is.null(selected_region()) & input$main_display != "map")
+      updateSelectInput(session, "main_display",
+                        selected = "map")
+  })
 
   }
 

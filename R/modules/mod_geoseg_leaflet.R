@@ -73,6 +73,12 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
       # https://rstudio.github.io/leaflet/shiny.html
       # i.e., input$MAPID_OBJCATEGORY_EVENTNAME
     })
+
+    observeEvent(input$reset_to_defaults, {
+      do.call('fitBounds',
+              c(list(map = proxy), l48bbox))
+    })
+
   })
 }
 

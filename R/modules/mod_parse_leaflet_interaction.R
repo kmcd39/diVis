@@ -79,12 +79,12 @@ mod_parse_leaflet.interaction <- function(id,
 
       # if you weren't previously showing CTs, do so for clicked region, and zoom in.
       if( is.null(show_CTs()) && !is.null(clicked.region) ) {
-        leaflet::flyTo(proxy,
-                       lng = leaflet_interaction$click_info$lng,
-                       lat = leaflet_interaction$click_info$lat,
-                       zoom = minimum_ct_zoom,
-                       options = list(duration = .5)
-                       )
+        #leaflet::flyTo(proxy,
+        #               lng = leaflet_interaction$click_info$lng,
+        #               lat = leaflet_interaction$click_info$lat,
+        #               zoom = minimum_ct_zoom,
+        #               options = list(duration = .5)
+        #               )
         selection.reactive( clicked.region )
       }
     })

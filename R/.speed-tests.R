@@ -42,7 +42,6 @@ microbenchmark::microbenchmark(
 
 # finding centroids ------------------------------------------------------------
 
-
 fast.approx.centroid <- function(region) {
   bbox = as.list(st_bbox(region))
   lon = mean(bbox$xmax, bbox$xmin)
@@ -57,6 +56,9 @@ geosphere::centroid(as(tmp, 'Spatial'))
 fast.approx.centroid(tmp)
 
 
+microbenchmark::microbenchmark( # 20ms
+  (divFcns::conic.transform(tmp$geometry) %>% st_centroid() %>% st_transform(4326) %>% st_coordinates())
+)
 microbenchmark::microbenchmark( # decently accurate; 2.5-3MS
   (st_centroid(tmp)$geometry %>% st_coordinates())
 )

@@ -136,27 +136,14 @@ mod_point.histogram <- function(id,
 
       clicked.point <- shiny::nearPoints(hist.dat(), input$plot_dbl.click,
                                  threshold = 10, maxpoints = 1, addDist = T)
-      #browser()
 
       if (nrow(clicked.point) != 0) {
         region <- gs.dat() %>%
           filter(region.type %in% clicked.point$region.type &
                    region.id %in% clicked.point$region.id)
 
-        # switch tab to map and zoom to region
-        updateSelectInput(session, "main_display",
-                          selected = "map")
-
-        region.coords <- st_centroid(region)$geometry %>% st_coordinates()
-
-        leaflet::flyTo(proxy,
-                       lng = region.coords[,"X"],
-                       lat = region.coords[,"Y"],
-                       zoom = 8, # minimum_ct_zoom,
-                       options = list(duration = .5)
-                       )
-
         selection.reactive(region)
+
         }
     })
 
