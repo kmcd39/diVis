@@ -25,7 +25,7 @@ outcomes <- list("Opp Insights" = list("kfr 29 pooled" = "kfr_29_mean",
 # geoseg::metrics %>% colnames()
 
 indicators <- # indicators are calculated descriptive statistics; moran_i, gini, etc.
-  colnames(geoseg::metrics)[4:15]
+  colnames(metrics)[4:15]
 
 # larger region types
 region_type <- list("Commuting Zone" = "cz",

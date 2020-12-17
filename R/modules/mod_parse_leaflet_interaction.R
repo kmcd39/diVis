@@ -19,6 +19,9 @@ click.hover_2region <- function(cursor_data, map.layer){
                cursor_data$lat))
     , crs = 4326)
 
+  # this is necessary due to the different version of PROJ on shinyapps.io
+  st_crs(map.layer) <- 4326
+
   sbgp <- suppressMessages( st_intersects(map.layer
                                           ,interaction.point) )
 
@@ -60,12 +63,17 @@ mod_parse_leaflet.interaction <- function(id,
 
     # zoom observer ----------------------------------------------------------------
     observeEvent( leaflet_interaction$zoom_level, {
-      #cat("zoom level", leaflet_interaction$zoom_level, "\n")
+      # cat("zoom level", leaflet_interaction$zoom_level, "\n")
+
+      # guard against invalidating while map is zooming in to new selection
+      # (kinda a "hack-y" solution but seems fine)
+      if(!is.integer(leaflet_interaction$zoom_level))
+        return()
 
       # if you ~were~ showing CTs and you zoom out, clear region to return
       if( !is.null(show_CTs()) && leaflet_interaction$zoom_level < minimum_ct_zoom ) {
+        #cat("zoom out recognized\n")
         selection.reactive(NULL)
-        #show_CTs(NULL)
       }
     })
 

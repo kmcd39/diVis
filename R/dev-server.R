@@ -1,5 +1,6 @@
+source("R/dev-global.R")
+source("R/dev-ui.R")
 
-library(shinydashboard)
 # server -----------------------------------------------------------------
 gs_server <- function(input, output, session) {
 
@@ -90,4 +91,3 @@ full.app <- function() {
 }
 
 full.app()
-

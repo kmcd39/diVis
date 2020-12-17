@@ -28,11 +28,9 @@ test_that("apply_rounding", {
   )
   expect_equal(
     apply_rounding(small.numerics),
-    appHelpers::q.format(small.numerics, 2)
+    appHelpers::q.format(small.numerics, 3)
   )
 })
-
-
 
 # map tooltips and zoom option -------------------------------------------------
 

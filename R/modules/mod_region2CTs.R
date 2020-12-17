@@ -22,6 +22,7 @@ get_CTs_by_region <- function(region, outcome, ...) {
 
   region.cts <- bin_and_format(region.cts, ...)
   region.cts <- st_sf(region.cts)
+  st_crs(region.cts) <- 4326 # explicit crs for shinyapp.io
 
   return(region.cts)
 }
@@ -53,11 +54,9 @@ mod_region2CTs <- function(id,
     # update CT reactive when region changes ---------------------------------
     observeEvent(region.reactive(), {
 
-      # set reactive
-      CT.reactive(
-        get_CTs_by_region( region.reactive(), input$outcome )
-      )
-      # if not NULL, also zoom to region
+  #browser()
+
+      # if not NULL, zoom to region
       if(!is.null(region.reactive())) {
 
         # zoom to region
@@ -73,7 +72,12 @@ mod_region2CTs <- function(id,
         )
       }
 
-    }, ignoreNULL = F)
+      # & set reactive after
+      CT.reactive(
+        get_CTs_by_region( region.reactive(), input$outcome )
+      )
+
+    }, ignoreNULL = F, ignoreInit = T)
 
     # send region name to text box  ------------------------------------------
     output$zoom.in_region <- renderText({

@@ -1,0 +1,13 @@
+name: Diviz
+title: Diviz
+username:
+account: kmcd39
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3409552
+bundleId: 4002269
+url: https://kmcd39.shinyapps.io/Diviz/
+when: 1608225942.95519
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .archived code & fcns.R|.scratch.R|.speed-tests.R|data.R|dev-app.R|dev-global.R|dev-server.R|dev-ui.R|dev_build-test-sets.R|shiny experiments.R

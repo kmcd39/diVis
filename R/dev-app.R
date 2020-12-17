@@ -1,3 +1,6 @@
+#rm(list=ls())
+
+source("global.R")
 source("gs_ui.R")
 source("gs_server.R")
 

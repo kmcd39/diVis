@@ -1,9 +1,9 @@
 
-# (shiny) global -------------------------------------------------------------------
+# DEV global -------------------------------------------------------------------
 
 # this uses different relative file paths and might have some other changes compared
-# to "dev-global.R." This one is designed for shiny deployment rather than sourcing
-# while developing app.
+# to "global.R." This one is designed for sourcing while developing app; the other is
+# for shiny deployment.
 
 library(shiny)
 library(shinyWidgets)
@@ -20,41 +20,25 @@ library(dplyr)
 
 library(zeallot)
 
-
-# add'l shinyapps.io setup -----------------------------------------------------
-# cairo graphical library
-# following discussion: https://stackoverflow.com/questions/26285786/ggplot2-graph-quality-in-shiny-on-shinyapps-io
-#install.packages("Cairo")
-library(Cairo)
-options(shiny.usecairo=T)
-
-
 # rm(list=ls())
 # get datasets -----------------------------------------------------------------
 
 
 # for deployment (shiny path relative to "./R/")
 # can maybe eventually bundle with pkg or host on DB or smthing
-# dif sourcing for modules below too as well
-geo.list <- readRDS(file = "data/geo.list.RDS")
-metrics <- readRDS(file = "data/metrics.RDS") #geoseg::metrics %>% rename(outcome = x)
-cts <- readRDS(file = "data/cts.RDS")
+' # note gotta change sourcing for modules below too as well
+geo.list <- readRDS(file = "../data/geo.list.rds")
+metrics <- readRDS(file = "../data/metrics.RDS") #geoseg::metrics %>% rename(outcome = x)
+cts <- readRDS(file = "../data/cts.RDS")
+'
+# for development (project path relative to package root)
 
+geo.list <- readRDS(file = "R/data/geo.list.RDS")
+metrics <- readRDS(file = "R/data/metrics.RDS")
+cts <- readRDS(file = "R/data/cts.RDS")    #geoseg::cts
 
 geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 
-
-
-# explicitly set CRS for shiny deployment --------------------------------------
-
-# sometimes PROJ bundled with spatial data isn't transferred to shinapps.io server so
-# must be set explicitly in scriptd
-for(r in geo.list){
-  st_crs(r) <- 4326
-}
-cts <- cts %>% st_sf()
-st_crs(cts) <- 4326
-cts <- tibble(cts)
 # minor helper sets ------------------------------------------------------------
 
 # (now in appHelpers)
@@ -78,9 +62,10 @@ l48bbox <- st_bbox(l48) %>% bbox_to_lnglat(padding = 0)
 
 # gets all R scripts in these subfolders and sources them
 src.dirs <- c(
-   "params/"
-  ,"processing-fcns/"
-  ,"modules/"
+   "R/params/"
+  ,"R/processing-fcns/"
+  ,"R/modules/"
+
 )
 
 source.in.dir <- function(srcd) {

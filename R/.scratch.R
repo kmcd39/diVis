@@ -1,4 +1,27 @@
 
+# playing w plotly -------------------------------------------------------------
+
+library(plotly)
+
+
+hist.pal <- colorFactor(viridis::viridis(7),
+                        test.gs.dat$binned_x)
+
+hist.dat <- test.gs.dat %>%
+  #divM::abv_out() %>% # is input gs.dat() sf to begin w/ ?
+  appHelpers::prep_for_point_hist( bin_denom = 10 ) %>%
+  mutate(color = hist.pal(binned_x)) #%>%
+  #arrange(desc(x)) %>% # do i need this?
+  #rename(!!display.label() := x)
+
+# initial plot
+gplot <- hist.dat %>% draw_point_hist()
+
+geom_point()
+
+# plotly
+ggplotly(p=gplot)
+ggplotly()
 
 
 # mapping assignments ----------------------------------------------------------

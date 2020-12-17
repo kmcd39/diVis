@@ -22,21 +22,21 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
       req(!is.null(gs.dat()))
 
-      # If not showing CTs, clear CTs and set params to map larger areas.
-      showing_cts <- !is.null(show_CTs())
-      if( !showing_cts ) {
+      # If not showing CTs, clear CTs and set args for mapping larger areas.
+      is_showing_cts <- !is.null(show_CTs())
+      if( !is_showing_cts ) {
         #proxy %>% clearGroup("cts")
 
-        to.map <- gs.dat()
+        to.map <- gs.dat() %>% st_set_crs(4326)
         fully_zoomed <- F
         opacities <- 0.6
         #grp.name <- "dat"
         map.pal <- gs.palette()
 
-      } else if( showing_cts ) {
+      } else if( is_showing_cts ) {
         #proxy %>% clearGroup("dat")
 
-        to.map <- show_CTs()
+        to.map <- show_CTs() %>% st_set_crs(4326) # %>% st_transform(4326)
         fully_zoomed <- T
         #opacities <- appHelpers::col.to.opacity(to.map$pop.dens)
         #grp.name <- "cts"
@@ -45,7 +45,7 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
       }
 
       # whether to use population density to set layer opacity.
-      opacity_from_pop.dens <- showing_cts
+      opacity_from_pop.dens <- is_showing_cts
 
       # populate map -----------------------------------------------------------------
       tooltips <- make_tooltips(input, to.map, click2zoom_enabled = !fully_zoomed)
@@ -53,7 +53,7 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
       # add legend
       proxy %>% add_legend( to.map, map.pal,
                             legend.title = make_display_label(input,
-                                                              showing_cts = showing_cts) )
+                                                              showing_cts = is_showing_cts) )
 
       # clear old shapes
       proxy %>% clearGroup("gs.dat")

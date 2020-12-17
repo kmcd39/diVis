@@ -11,6 +11,7 @@
 #' @noRd
 #'
 #' @import dblinkr
+'
 mod_div_overlay_server <- function(id, show_CTs, proxy) {
 
   moduleServer(id, function(input, output, session) {
@@ -50,7 +51,7 @@ mod_div_overlay_server <- function(id, show_CTs, proxy) {
         return(divs)
       }))
 
-    # 'render' button events -- call update ------------------------
+    # "render" button events -- call update ------------------------
     observeEvent(input$render.divs, {
 
       # clear old layers
@@ -63,7 +64,7 @@ mod_div_overlay_server <- function(id, show_CTs, proxy) {
     })
   })
 }
-
+'
 
 
 # ui module --------------------------------------------------------------------
@@ -79,6 +80,7 @@ mod_div_overlay_server <- function(id, show_CTs, proxy) {
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+'
 mod_div_overlay_ui <- function(id, div.opts){
   ns <- NS(id)
   shinyjs::useShinyjs()
@@ -106,6 +108,7 @@ mod_div_overlay_ui <- function(id, div.opts){
     ))
   )
 }
+'
 
 
 # helper fcns in processing-fcns/div-fcns/  ----------------------------------------------------------------------

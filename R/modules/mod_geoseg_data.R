@@ -24,7 +24,7 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
     gs.palette <- reactiveVal(NULL)
 
 
-    # reset to devaults observer
+    # reset to defaults observer
     observeEvent(input$reset_to_defaults, {
 
       # defaults defined along w/ other options in params/selectables.
@@ -38,6 +38,8 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
     # update returned reactives
     observeEvent( list(input$outcome, input$indicator,
                        input$region_type, input$pop_weighted), {
+
+      req(input)
 
       # call wrapper fcn to parse data; set output to reactive
       gs.out( parse.geoseg.data(input) )

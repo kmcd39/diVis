@@ -22,20 +22,21 @@ cz.pops <- pops %>% group_by(cz) %>% summarise(across(c(population, hh), sum))
 cbsa.pops <- pops %>% group_by(cbsa) %>% summarise(across(c(population, hh), sum))
 county.pops <- pops %>% group_by(county) %>% summarise(across(c(population, hh), sum))
 
-popL <- purrr::map2(list(cz.pops, cbsa.pops, county.pops),
+# make wide by region.type/region.id
+(popL <- purrr::map2(list(cz.pops, cbsa.pops, county.pops),
                     list("cz", "cbsa", "county"),
-                    ~geoseg::region.reorg(.x, .y))
-
-popL
+                    ~geoseg::region.reorg(.x, .y)))
 
 pops <- do.call('rbind', popL)
-geo
+
+# get larger-region info from metrics
 metrics <- geoseg::metrics
+# abv/standardize some varnames/region names
 metrics$var.name <- gsub("_pooled_pooled_", "_", metrics$var.name)
 metrics$region.type <- if_else(metrics$region.type == "countyfp",
                                "county",
                                metrics$region.type)
-
+# add population totals
 metrics <- left_join(metrics,
                      pops)
 

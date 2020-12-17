@@ -1,0 +1,79 @@
+#sidebar {
+	border: 1px solid #033B4DBB;
+	margin-top: 10px;
+	height: 94vh;
+	/* 	dark option: #233339; 	color: #EEE; */
+	font-size: 14px;
+	padding: 20px;
+}
+
+.selectize-input > input { display: inline-block; }
+.selectize-input { line-height: 28px; }
+.selectize-dropdown { line-height: 28px; }
+
+.nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {
+  background-color: #2C728E;
+  border-color: transparent;
+	color: WHITE;
+}
+
+.nav-tabs-custom .nav-tabs a:hover {
+	background-color: #02465B;
+}
+
+.nav-tabs-custom .nav-tabs a {
+	margin-top: 10px;
+	background-color:  #033B4D;
+	font-size: 15px;
+	color: white;
+	padding: 14px;
+	text-decoration: none;
+}
+
+.tab-content {
+	border: 1px solid #033B4DBB;
+	margin-bottom: 20px;
+	padding: 5px;
+}
+
+
+
+#pop_slider {
+	margin: auto;
+	width: 90%;
+}
+
+#dist {
+	margin-top: 60px;
+}
+
+#dt {
+	margin: 10px;
+	padding: 5px;
+}
+
+.action-button {
+	font-size: 10.5px;
+}
+
+#reset_to_defaults {
+	font-size: 14px;
+	margin: 30 10 0 10;
+	padding: 10px 10px 10px 10px;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	align: center;
+}
+
+#subselectors {
+	padding: 10px;
+}
+
+#gui_options {
+	padding: 5px;
+	margin: 0 5 0 5;
+	border: 1px solid #033B4DBB;
+}
+
+/*
+
+*/

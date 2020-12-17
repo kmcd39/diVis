@@ -6,6 +6,7 @@ library(DT)
 # used by ui and filter fcn
 # 1million as upper cap for slider filter..
 count.to.million <- function(by = 5000) seq.int( 0, 1e6, by = by)
+
 pop_filter_range <-
   c(trimws(format(count.to.million(), big.mark = ",", digits = 0, scientific = F)),
     ">1 million")
@@ -22,13 +23,15 @@ pop_filter_range <-
 #'   i.e., "1,000". Probably user input from \code{shinyWidgets::sliderTextInput}
 apply_population_filter <- function( x, pop_range_selection, slider_range = pop_filter_range) {
 
+  # if(is.null(x) || !("population" %in% colnames(x)))  return(NULL)
+
   # if slider range is at maximum (i.e. upper end is ">1 million"), only filter at bottom
   if (pop_range_selection[2] == slider_range[length(slider_range)]) {
 
     x %>% filter( population >=
                     appHelpers::format_as.numeric(pop_range_selection[1]) )
-   } else {
-     # otherwise, filter at both ends
+  } else {
+    # otherwise, filter at both ends
     x %>% filter( population <=
                     appHelpers::format_as.numeric(pop_range_selection[2]) &
                     population >=
@@ -44,7 +47,7 @@ apply_population_filter <- function( x, pop_range_selection, slider_range = pop_
 #'   throughout most of the app.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
-#' @param x Dataframe with a 'population' column to filter on
+#' @param x Dataframe with a 'population' column to filter by
 #'
 #' @noRd
 mod_population.filter <- function(id, x) {
@@ -55,10 +58,13 @@ mod_population.filter <- function(id, x) {
 
     observeEvent(list(x(), input$population_slider), {
 
+      req(x())
+
       # parse input and set to reactive
       pop.filtered( apply_population_filter(x(), input$population_slider) )
 
     })
+
     return(pop.filtered)
   })
 }
@@ -123,4 +129,4 @@ pop.filter.app <- function() {
 
 # run (test) --------------------------------------------------------------------
 
-pop.filter.app()
+# pop.filter.app()

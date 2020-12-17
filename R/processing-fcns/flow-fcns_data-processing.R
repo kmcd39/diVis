@@ -67,7 +67,10 @@ parse.geoseg.data <- function(input, ...) {
                     geo.list[[input$region_type]],
                     by = c("region.id"))
 
-  # bin & format & spatialize
+  # To make bins round to nearest thousand if vector contains values >10,000
+  if(any(out$x  > 1e4, na.rm = T) )
+    out$x <- round(out$x, digits = -3)
+
   out <- bin_and_format(out, ...)
   out <- st_sf(out)
 
@@ -105,15 +108,16 @@ get.cdc.keep.vars <- function(selected_outcome,
 #' suppress.low.CDC.counts
 #'
 #' If CDC var selected, and we're not shwoing change-in
-suppress.low.CDC.counts <- function(out, input) {
+suppress.low.CDC.counts <- function(df, input) {
 
   if ( !input$change_in & input$outcome %in% ts.vars ) {
 
-    out <- out %>%
+    out <- df %>%
       tidyr::pivot_wider(values_from = "x",
                          names_from = "var.name") %>%
       appHelpers::suppress_low_counts(input$outcome) %>%
       rename(x = !!input$outcome)
+
     # to prevent ever_less_then_10s from appearing in TS tab.
     ever_less_than_tens <- out %>%
       count(region.id) %>%
@@ -123,7 +127,6 @@ suppress.low.CDC.counts <- function(out, input) {
     out <- out %>% filter(!region.id %in% ever_less_than_tens)
 
     return(out)
-  }
-
-  return(out)
+  } else
+    return(df)
 }

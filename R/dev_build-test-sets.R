@@ -9,26 +9,29 @@ simul.input <- list(outcome = test.var,
                     region_type = test.region,
                     pop_weighted = FALSE)
 
-tmp <- parse.geoseg.data(simul.input) %>% filter(region.name == "Philadelphia")
+test.gs.dat <- parse.geoseg.data(simul.input)
 
-tmp.cts <- get_CTs_by_region(tmp, simul.input$outcome)
+test.single.region <- test.gs.dat %>% filter(region.name == "Philadelphia")
+
+test.cts <- get_CTs_by_region(test.single.region, simul.input$outcome)
 
 # divs
-tmp.plc <- divDat::plc %>% st_transform(st_crs(tmp.cts)) %>% st_intersection(st_union(tmp.cts))
-tmp.redlining <- divDat::redlining %>% st_transform(st_crs(tmp.cts)) %>% st_intersection(st_union(tmp.cts))
+tmp.plc <- divDat::plc %>% st_transform(st_crs(test.cts)) %>% st_intersection(st_union(test.cts))
+tmp.redlining <- divDat::redlining %>% st_transform(st_crs(test.cts)) %>% st_intersection(st_union(test.cts))
 
 # quick mapping
-tmp.tooltips <- make_tooltips(simul.input, tmp.cts, F)
+tmp.tooltips <- make_tooltips(simul.input, test.cts, F)
 tmp.pal <- colorFactor(viridis::plasma(7),
-                       tmp.cts$binned_x)
+                       test.cts$binned_x)
 
 # for visual tests -----------------------------------------------------------------
 
 base.gs.choropleth <-
   create_leaflet_base() %>%
-  choropleth_draw(tmp.cts, "cts",
+  choropleth_draw(test.cts, "cts",
                   tmp.tooltips, tmp.pal,
                   opacity_from_pop.dens = T,
                   stroke = F)
 
 
+base.gs.choropleth

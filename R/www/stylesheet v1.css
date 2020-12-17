@@ -1,0 +1,43 @@
+#sidebar {
+	height: 94vh;
+	background-color: #233339;
+	color: white;
+	font-size: 14px;
+	padding: 20px;
+}
+
+.nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {
+     background-color: #67C0BCFF;
+     border-color: transparent;
+	 color: black;
+}
+
+.nav-tabs-custom .nav-tabs a:hover {
+	background-color: #29667FFF;
+}
+
+.nav-tabs-custom .nav-tabs a {
+	     background-color: #2C728EFF;
+		 font-size: 15px;
+		 color: white;
+		 padding: 14px;
+		 text-decoration: none;
+}
+
+#subselectors {
+	padding: 10px;
+	margin: auto;
+	text-align: center;
+}
+
+#gui_options {
+	padding: 5px;
+	margin: 5px;
+	border: 1px solid #233339AA;
+}
+
+/*
+.tab-content {
+	background-color: #768281;
+}
+*/

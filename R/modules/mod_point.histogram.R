@@ -72,10 +72,9 @@ mod_point.histogram <- function(id,
         # cat("transforming data for hist..\n")
 
         gs.dat() %>%
-          # divFcns::abv_out() %>% # is input gs.dat() sf to begin w/ ?
           appHelpers::prep_for_point_hist( bin_denom = 10 ) %>%
           mutate(color = palette()(binned_x)) %>%
-          arrange(desc(x)) %>% # do i need this?
+          # arrange(desc(x)) %>% # do i need this?
           rename(!!display.label() := x)
       })
     })
