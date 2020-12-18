@@ -45,7 +45,9 @@ selectables <- list(outcomes = outcomes,
 # color palette options
 col_palettes <- list("v7" = colorspace::darken(viridis::viridis(7), .1),
                      "p7" = colorspace::darken(viridis::plasma(7)),
-                     "hcl5" = colorspace::diverging_hcl(5, h = c(180, 50), c = 80, l = c(20, 95), power = c(0.7, 1.3)))
+                     "hcl5" = colorspace::diverging_hcl(5, h = c(180, 50),
+                                                        c = 80, l = c(20, 95),
+                                                        power = c(0.7, 1.3)))
 palette.options <- c("Heat by value" = "p7",
                      "Greens by value" = "v7",
                      #"Gradient greens" = "v11",

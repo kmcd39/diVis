@@ -9,10 +9,9 @@ output.height = 640
 gs_ui <- fluidPage(
 
     shinyjs::useShinyjs(),
-    tags$head(
-      #includeScript("src/support.js"),
-      includeCSS("R/www/stylesheet.css")
-    ),
+    #tags$head(
+     #  includeCSS("R/www/stylesheet.css")
+    #),
 
     sidebarLayout(
 
