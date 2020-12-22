@@ -14,7 +14,7 @@ Depends:
     R (>= 2.10)
 Suggests: 
     testthat
-Collate: data-raw/cattr.R data-raw/geo-list.R dev/setting up pkg.R R/data.R
+Collate: data-raw/geo-list.R dev/setting up pkg.R R/data.R
     R/diVis.R R/flow-fcns_data-processing.R R/flow-fcns_region-parsing.R
     R/mod_parse.geometries_server.R R/mod_prep.data_server.R
     R/mod_prep.data_ui.R R/server.R R/ui-params_selectables.R R/ui.R

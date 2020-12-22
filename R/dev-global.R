@@ -23,19 +23,14 @@ library(zeallot)
 # rm(list=ls())
 # get datasets -----------------------------------------------------------------
 
-
-# for deployment (shiny path relative to "./R/")
-# can maybe eventually bundle with pkg or host on DB or smthing
-' # note gotta change sourcing for modules below too as well
-geo.list <- readRDS(file = "../data/geo.list.rds")
-metrics <- readRDS(file = "../data/metrics.RDS") #geoseg::metrics %>% rename(outcome = x)
-cts <- readRDS(file = "../data/cts.RDS")
-'
-# for development (project path relative to package root)
+# for development, map through R/data sets. Eventually I'll clean up so can devtools
+# load as a package
 
 geo.list <- readRDS(file = "R/data/geo.list.RDS")
 metrics <- readRDS(file = "R/data/metrics.RDS")
 cts <- readRDS(file = "R/data/cts.RDS")    #geoseg::cts
+dod <- readRDS("R/data/dod.RDS")
+source("data-raw/selectabilities.R")
 
 geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 
@@ -65,7 +60,6 @@ src.dirs <- c(
    "R/params/"
   ,"R/processing-fcns/"
   ,"R/modules/"
-
 )
 
 source.in.dir <- function(srcd) {

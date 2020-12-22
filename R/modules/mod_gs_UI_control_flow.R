@@ -34,7 +34,8 @@ ui.control.app <- function() {
     # output$out <- renderPrint(v())
     output$out <- DT::renderDataTable({
       req(!is.null(v()))
-      v(select(tibble(v()), setdiff(colnames(v()), c("x", "geometry")), "geometry"))
+      v(select(tibble(v()),
+               setdiff(colnames(v()), c("x", "geometry")), "geometry"))
       DT::datatable(v())
     })
   }

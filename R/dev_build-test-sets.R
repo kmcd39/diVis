@@ -16,7 +16,7 @@ test.single.region <- test.gs.dat %>% filter(region.name == "Philadelphia")
 test.cts <- get_CTs_by_region(test.single.region, simul.input$outcome)
 
 # divs
-tmp.plc <- divDat::plc %>% st_transform(st_crs(test.cts)) %>% st_intersection(st_union(test.cts))
+#tmp.plc <- divDat::plc %>% st_transform(st_crs(test.cts)) %>% st_intersection(st_union(test.cts))
 tmp.redlining <- divDat::redlining %>% st_transform(st_crs(test.cts)) %>% st_intersection(st_union(test.cts))
 
 # quick mapping

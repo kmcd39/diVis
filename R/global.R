@@ -48,7 +48,7 @@ geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 # explicitly set CRS for shiny deployment --------------------------------------
 
 # sometimes PROJ bundled with spatial data isn't transferred to shinapps.io server so
-# must be set explicitly in scriptd
+# must be set explicitly in script
 for(r in geo.list){
   st_crs(r) <- 4326
 }
