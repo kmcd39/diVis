@@ -80,32 +80,34 @@ geo.list$national <-
         us_name = "National",
         geometry = .)
 
-
 # re-project -------------------------------------------------------------------
 geo.list <-
   purrr::imap( geo.list,
                ~st_transform(., 4326 ) )
 
-
 # remove part of alaska that stretches into eastern hemisphere -----------------
 # also run st_make_valid
 # i.e., see:
-geo.list[['cz']]['cz'] %>% plot()
 geo.list[['cz']]['cz'] %>%
-  st_crop(c(xmin = -180, xmax = 40,
-            ymin = 20, ymax = 80)) %>% plot()
+  #st_buffer(0) %>%
+  st_crop(
+    c(xmin = -180, xmax = 40,
+      ymin = -20, ymax = 80)
+    ) %>%
+  plot()
+
+
+
 
 
 geo.list <-
-  purrr::map(geo.list,
-             ~tibble(
-               st_make_valid(
-                 st_crop(st_sf(.),
-                 c(xmin = -180, xmax = 40,
-                   ymin = 20, ymax = 80))))
-             )
+  geo.list %>%
+  map( ~st_crop(st_make_valid(.),
+                c(xmin = -180, xmax = 40,
+                  ymin = -20, ymax = 80)
+                ))
 
-geo.list
+geo.list$cbsa["cbsa"] %>% plot()
 
 
 # check colnames ------------------------------------------------------------
@@ -125,10 +127,10 @@ geo.list <-
 geo.list
 
 # as RDS (for early development)
-saveRDS(geo.list,
-        file = "R/data/geo.list.RDS")
+#saveRDS(geo.list,
+#        file = "R/data/geo.list.RDS")
 
 
-# geo.list <- readRDS("data/geo.list.RDS)
-#usethis::use_data(geo.list
-#                  ,overwrite = TRUE)
+# geo.list <- readRDS("data/geo.list.RDS")
+usethis::use_data(geo.list
+                  ,overwrite = TRUE)
