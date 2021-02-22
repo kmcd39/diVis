@@ -89,4 +89,4 @@ full.app <- function() {
   shinyApp(gs_ui, gs_server)
 }
 
-full.app()
+#  full.app()

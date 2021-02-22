@@ -1,6 +1,6 @@
 
 # basic ui params --------------------------------------------------------------
-
+'
 sidebar.width = 3
 output.height = 640
 
@@ -55,3 +55,4 @@ ui <- fluidPage(
 
     )
   )
+'

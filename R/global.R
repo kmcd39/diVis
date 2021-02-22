@@ -30,6 +30,7 @@ library(zeallot)
 library(Cairo)
 options(shiny.usecairo=T)
 
+'
 
 # rm(list=ls())
 # get datasets -----------------------------------------------------------------
@@ -53,7 +54,7 @@ geo.list[1:3] <-
 
 # explicitly set CRS for shiny deployment --------------------------------------
 
-# sometimes PROJ bundled with spatial data isn't transferred to shinapps.io server so
+# sometimes PROJ bundled with spatial data isnt transferred to shinapps.io server so
 # must be set explicitly in script
 for(r in geo.list) {
   st_crs(r) <- 4326
@@ -93,7 +94,7 @@ source.in.dir <- function(srcd) {
   # get all .R scripts in specified dirs/subdirectories
   env.src <- dir(path = srcd, pattern="\\.[rR]$", recursive=F,
                  all.files = TRUE)
-  # source 'em
+  # source em
   map(env.src, ~source(paste0(srcd, .)))
 }
 
@@ -103,3 +104,4 @@ map(src.dirs, source.in.dir)
 
 #  source("R/dev_build-test-sets.R")
 
+'

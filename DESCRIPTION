@@ -12,12 +12,14 @@ LazyData: true
 RoxygenNote: 7.1.1
 Depends: 
     R (>= 2.10)
+Imports:
+  leaflet,
+  lwgeom,
+  rlang,
+  rmapshaper,
+  sf,
+  tidyverse
 Suggests: 
     testthat
-Collate: data-raw/geo-list.R dev/setting up pkg.R R/data.R
-    R/diVis.R R/flow-fcns_data-processing.R R/flow-fcns_region-parsing.R
-    R/mod_parse.geometries_server.R R/mod_prep.data_server.R
-    R/mod_prep.data_ui.R R/server.R R/ui-params_selectables.R R/ui.R
-    tests/testthat.R tests/testthat/test-flow-fcns_region-parsing.R
 URL: https://github.com/kmcd39/diVis
 BugReports: https://github.com/kmcd39/diVis/issues
