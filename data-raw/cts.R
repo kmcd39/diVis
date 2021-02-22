@@ -108,12 +108,36 @@ cts %>%
   filter(st_is_empty(.$geometry)) %>%
   select(1:10) %>% distinct()
 
+
+
+# add tract-lvl mobility --------------------------------------------------------
+'
+ddir <- paste0(
+  Sys.getenv("drop_dir"),
+  "seg-measures/"
+)
+(fn <- list.files(ddir,
+                 pattern = "tract_lvl_measures\\."))
+ctseg <-
+  vroom::vroom(paste0(ddir, fn))
+ctseg <- ctseg %>%
+  select(-contains("cz"))
+
+cts <-
+  left_join(cts,
+          ctseg)
+
+cts %>%
+  map( ~sum(is.na(.)))
+'
+
+
 # write ------------------------------------------------------------------------
 
 # cts <- readRDS("data/cts.RDS")
 
 saveRDS(cts,
-         "data/cts.RDS")
+         "R/data/cts.RDS")
 
-usethis::use_data(cts
-                  ,overwrite = TRUE)
+#usethis::use_data(cts
+#                  ,overwrite = TRUE)

@@ -22,9 +22,11 @@ library(zeallot)
 
 
 # add'l shinyapps.io setup -----------------------------------------------------
+
 # cairo graphical library
 # following discussion: https://stackoverflow.com/questions/26285786/ggplot2-graph-quality-in-shiny-on-shinyapps-io
-#install.packages("Cairo")
+
+# install.packages("Cairo")
 library(Cairo)
 options(shiny.usecairo=T)
 
@@ -41,7 +43,11 @@ metrics <- readRDS(file = "data/metrics.RDS") #geoseg::metrics %>% rename(outcom
 cts <- readRDS(file = "data/cts.RDS")
 
 
-geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
+geo.list[1:3] <-
+  imap(geo.list[1:3],
+       ~rename(.,
+               region.id = 1, region.name = 2)
+       )
 
 
 
@@ -49,7 +55,7 @@ geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
 
 # sometimes PROJ bundled with spatial data isn't transferred to shinapps.io server so
 # must be set explicitly in script
-for(r in geo.list){
+for(r in geo.list) {
   st_crs(r) <- 4326
 }
 cts <- cts %>% st_sf()

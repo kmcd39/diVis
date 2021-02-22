@@ -1,4 +1,4 @@
-source("R/dev-global.R")
+# source("R/dev-global.R")
 source("R/dev-ui.R")
 
 # server -----------------------------------------------------------------
@@ -70,8 +70,7 @@ gs_server <- function(input, output, session) {
                       pop.filtered.gs,
                       gs.palette,
                       selection.reactive = selected_region,
-                      hilite.point = reactiveVal(NULL),
-                      change_in = FALSE)
+                      hilite.point = reactiveVal(NULL))
 
   # happens outside of module because dealing across UI elements
   observeEvent(selected_region(), {
@@ -81,14 +80,13 @@ gs_server <- function(input, output, session) {
                         selected = "map")
   })
 
-  }
+}
 
-
+library(DT)
 # launch -----------------------------------------------------------------------
 #shinyApp(ui, server)
 full.app <- function() {
   shinyApp(gs_ui, gs_server)
 }
 
-#
 full.app()

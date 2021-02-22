@@ -55,11 +55,9 @@ get.cdc.keep.vars <- function(input,
 suppress.low.CDC.counts <- function(df, input) {
 
   if ( !input$change_in ) {
-    # filter all regions where n<10 over time period
+    # suppress values were n<10, per CDC terms of use
     df <- df %>%
-      group_by(region.id) %>%
-      filter(!any(x < 10)) %>%
-      ungroup()
+      mutate(x = ifelse(x<10, NA, x))
   }
   return(df)
 }

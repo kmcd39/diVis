@@ -28,16 +28,58 @@ county <- county %>%
 # make minimal
 cbsa <- cbsa %>% select(1,2,geometry)
 
+# double simplify this one (cld be better soln: redownloading from api to mirror czs or smthn)
+cbsa <- rmapshaper::ms_simplify(cbsa)
+
+
 # build list -------------------------------------------------------------------
 geo.list <- list("cz" = cz,
                  "county" = county,
                  "cbsa" = cbsa)
 
-# rmapsimplify -----------------------------------------------------------------
+
+# rmapsimplify (further) -------------------------------------------------------
 geo.list <-
   purrr::imap(geo.list,
               ~rmapshaper::ms_simplify(
                 st_buffer(st_make_valid(.), 0)) )
+
+
+# add states & larger areas ----------------------------------------------------
+
+# cz_blox <- divDat::czs_simplified
+
+states <- tigris::states()
+colnames(states) <- tolower(colnames(states))
+
+geo.list$state <- states %>%
+  select(state = statefp,
+         state_name = name)
+
+geo.list$division <-
+  states %>%
+  group_by(division) %>%
+  summarise(., do_union = T) %>%
+  left_join(
+    distinct(xwalks::state2div[, c("division", "division_name")])) %>%
+  select("division", "division_name", geometry)
+
+geo.list$division["division_name"] %>% plot()
+
+'geo.list$region <- # too many options! I take this one out
+  states %>%
+  group_by(region) %>%
+  summarise(., do_union = T) %>%
+  left_join(
+    distinct(xwalks::state2div[, c("region", "region_name")]))'
+
+geo.list$national <-
+  states %>%
+  st_union() %>%
+  st_sf(us = 1,
+        us_name = "National",
+        geometry = .)
+
 
 # re-project -------------------------------------------------------------------
 geo.list <-
@@ -63,11 +105,28 @@ geo.list <-
                    ymin = 20, ymax = 80))))
              )
 
+geo.list
+
+
+# check colnames ------------------------------------------------------------
+geo.list %>% purrr::map(colnames)
+
+# region.id/name form -------------------------------------------------------
+geo.list <-
+  imap(geo.list,
+       ~rename(., region.id = 1, region.name = 2))
+
+# everything is characters...
+geo.list <-
+  imap(geo.list,
+       ~mutate(., region.id = as.character(region.id)))
+
 # peek & write ------------------------------------------------------------------------
 geo.list
 
 # as RDS (for early development)
-saveRDS(geo.list, file = "data/geo.list.RDS")
+saveRDS(geo.list,
+        file = "R/data/geo.list.RDS")
 
 
 # geo.list <- readRDS("data/geo.list.RDS)

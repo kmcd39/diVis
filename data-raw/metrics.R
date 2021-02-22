@@ -1,4 +1,4 @@
-library(dplyr)
+library(tidyverse)
 rm(list= ls())
 # take geoseg::metrics and add population totals
 
@@ -26,10 +26,49 @@ metrics %>% filter(is.na(outcome)) %>% summary()
 nrow(geoseg::metrics)
 metrics %>% count(region.type)
 
+
+# add safegraphSeg stuff -------------------------------------------------------
+'
+metrics
+ddir <- paste0(
+  Sys.getenv("drop_dir"),
+  "seg-measures/"
+  )
+fn <- list.files(ddir,
+                 pattern = "CZ_seg\\.") # _with_intratract
+czseg <-
+  vroom::vroom(paste0(ddir, fn))
+fn <- list.files(ddir,
+                 pattern =
+                   "CBSA_seg\\.") # _with_intratract
+
+cbsaseg <-
+  vroom::vroom(paste0(ddir, fn))
+
+czseg <-
+  geoseg::region.reorg(
+  czseg,
+  "cz"
+  ) %>% select(-cz_name)
+
+cbsaseg <-
+  geoseg::region.reorg(
+    cbsaseg,
+    "cbsa"
+  ) %>% select(-cbsa_name)
+
+seg <- rbind(czseg, cbsaseg)
+
+metrics <- metrics %>%
+  left_join(seg,
+            by = c("region.type", "region.id"))
+'
 # write ------------------------------------------------------------------------
 
 # rds for dev
-saveRDS(metrics, file = "R/data/metrics.RDS")
+saveRDS(metrics,
+        file =
+          "R/data/metrics.RDS")
 
 # rda for publishing
 #usethis::use_data(metrics,

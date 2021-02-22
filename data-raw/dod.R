@@ -30,11 +30,11 @@ dod_agg <- left_join(dod_agg,
 dod_agg$abv = dod_agg$state
 dod_agg$state = dod_agg$statefp
 (dod_agg <- dod_agg %>% select(-statefp))
-dod_agg$us <- 1
+dod_agg$national <- 1
 
 # pre-process / aggregate outcomes to each new region level
 dod_aggL <- list()
-for (region.str in c("cz", "state", "division", "region", "us")) {
+for (region.str in c("cz", "state", "division", "region", "national")) {
   # dod for region as list of df's; one for each var (each df in list containing both rates and counts)
   to.add <- purrr::map(c("population",
                          dod.vars[grepl("rate", dod.vars)]), # i only do rates because flexi aggr always keeps the counts
@@ -65,13 +65,15 @@ dod %>%
             , sum(sdeaths_e, na.rm = T)
             , sum(odeaths_e, na.rm = T))
 
+# check
 dod %>% count(region.type)
 
-# pivot long by var.name
-'dod <- dod %>%
-  tidyr::pivot_longer(cols = c(contains("_e")),
-                      names_to = "var.name",
-                      values_to = "outcome")'
+
+# drop non-included region types -----------------------------------------------
+
+# seems to over-complexify to add divisions and regions
+dod <- dod %>%
+  filter(region.type != "region")
 
 # write ------------------------------------------------------------------------
 

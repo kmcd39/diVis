@@ -8,9 +8,10 @@ library(DT)
 #' flow-fcns/data-processing.
 #' @param input input passed on from shiny, as from \code{geoseg_ui}
 #' @inheritParams bin_and_format
+#' @export
 parse.geoseg.data <- function(input, ...) {
 
-  browser()
+  #browser()
   # get attr -- subsets from appro
   out <- flexi.attr_subset(input)
 
@@ -41,7 +42,7 @@ parse.geoseg.data <- function(input, ...) {
 #' flexi.attr_subset
 #'
 #' Parse data. Will depend on setup of bundled datasets and selectability rules (all
-#' generated in data-raw/)
+#' generated in data-raw)
 flexi.attr_subset <- function(input) {
 
   if(input$outcome %in% seln.rules$gs_vars)
@@ -103,14 +104,14 @@ dod_attr_subset <- function(input) {
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @export
 mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
 
   moduleServer(id, function(input, output, session) {
 
-    # module reactives
-    gs.out <- reactiveVal(NULL)
-    gs.palette <- reactiveVal(NULL)
-
+    # module reactives -- returned from module
+    gs.out <- reactiveVal(NULL) # parsed dataset
+    gs.palette <- reactiveVal(NULL) # matching color-interpolation function
 
     # "reset to defaults" button  -----------------------------------------
     observeEvent(input$reset_to_defaults, {
@@ -128,7 +129,7 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
     # (options such as possible years, region levels, indicators, are dependent
     # on selected outcome)
 
-    observeEvent( input$outcome, {
+    update_choices_and_UI <- reactive({
       # seln.matrix defined in data-raw/selectabilities
 
       new_choices <- seln.matrix[seln.matrix$outcome %in% input$outcome,] %>%
@@ -150,13 +151,15 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
         }
 
       # update indicators
+
       update_ui_keep_selected_if_possible("indicator",
                                           new_choices$avail_indicators)
       # update region types
       update_ui_keep_selected_if_possible("region_type",
                                           new_choices$avail_region.types)
 
-      # update TS options
+
+      # update TS options & show/hide time-series sliders
       if( input$outcome %in% seln.rules$ts_vars ) {
 
         shinyjs::show("time_trim")
@@ -170,10 +173,41 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
                                selected = FALSE)
       } else {
         shinyjs::hide("time_trim")
+        shinyjs::show("pop_weighted")
       }
 
+      # show/hide indicator and `weigh indicator by pop` options-- hide if there
+      # aren't inequality indicators (we're just looked at outcome)
+      if(length(new_choices$avail_indicators) == 1) {
+        shinyjs::hide("indicator")
+        shinyjs::hide("pop_weighted")
+      } else {
+        shinyjs::show("indicator")
+        shinyjs::show("pop_weighted")
+      }
 
     })
+
+
+    # show appropriate time slider based on `input$change_in` ----------------------
+    observeEvent( input$change_in, {
+      if(input$change_in){
+        shinyjs::show("year_range")
+        shinyjs::hide("year")
+      } else {
+        shinyjs::hide("year_range")
+        shinyjs::show("year")
+      }
+    })
+
+
+    # Update UI so all options are eligible, based on selected outcome --------------
+    observeEvent( input$outcome, {
+
+      # Note that below immediately Invalidates due to dependency on input$outcome (and is
+      # scheduled for execution based on settings ~before~ this one is run)
+      update_choices_and_UI()
+    }, priority = 99)
 
 
     # update returned reactives ----------------------------------------------------
@@ -186,7 +220,15 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
       input$year_range,
       input$change_in), {
 
-        req(input)
+        #' may be room for improvement combining this w/ above observer (wrapped in an
+        #' if statement -- i.e, if not all inputs are in legal_choices, then run update_choices_and_UI)
+        # ensure selectables updated in ui / validate
+        legal_choices <- seln.matrix[seln.matrix$outcome %in% input$outcome,] %>%
+          purrr::map(unlist)
+
+        req(input$indicator %in% legal_choices$avail_indicators,
+            input$region_type %in% legal_choices$avail_region.types)
+
 
         # call wrapper fcn (defined above); set to reactive
         gs.out(
@@ -199,6 +241,7 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
         gs.palette(pal)
       })
 
+    # module retruns parsed dataset and color fcn
     return(list(
       dat = gs.out,
       palette = gs.palette)
@@ -226,7 +269,6 @@ mod_geoseg_ui <- function(id, selectables){
   ns <- NS(id)
 
   require(shinyWidgets)
-  shinyjs::useShinyjs()
 
   tagList(
     # OUTCOME --
@@ -249,7 +291,7 @@ mod_geoseg_ui <- function(id, selectables){
                    selected = defaults$region_type),
 
     # TIME SLIDER --
-    shinyjs::hidden(div(id = "time_trim",
+    shinyjs::hidden(div(id = ns("time_trim"),
                         sliderTextInput(ns("year"), label = strong("Year:") # single year
                                         , choices = selectables$years
                                         , selected = selectables$years[length(selectables$years)]),
@@ -260,12 +302,12 @@ mod_geoseg_ui <- function(id, selectables){
                                                        selectables$years[length(selectables$years)])), # ..& last
                         # CHANGE-IN
                         materialSwitch(ns("change_in"),
-                                       status = "primary", label = strong("show change"),
+                                       status = "primary", label = strong("Change over time"),
                                        value = FALSE))),
 
     # WEIGHED_BY_POP
     materialSwitch(inputId = ns("pop_weighted"), status = "primary",
-                   label = strong("Weigh Outcomes by Population"),
+                   label = strong("Weigh indicator by population"),
                    value = FALSE),
 
     # RESET TO DEFAULT
@@ -280,8 +322,10 @@ mod_geoseg_ui <- function(id, selectables){
 
 base.app <- function() {
 
+  require(shinyjs)
   # ui ---------------------------------------------------------------------------
   ui <- fluidPage(
+    shinyjs::useShinyjs(),
     mod_geoseg_ui("gs", selectables),
     DT::dataTableOutput("out")
   )
@@ -295,7 +339,9 @@ base.app <- function() {
     # datatable for straightforward test output
     output$out <- DT::renderDataTable({
       req(!is.null(v()))
-      v(select(tibble(v()), setdiff(colnames(v()), c("x", "geometry")), "geometry"))
+      v(select(tibble(v()),
+               setdiff(colnames(v()), c("x", "geometry"))
+               ))
       DT::datatable(v())
     })
   }
@@ -305,4 +351,4 @@ base.app <- function() {
 
 # run (test) --------------------------------------------------------------------
 
-#base.app()
+# base.app()

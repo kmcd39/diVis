@@ -20,6 +20,8 @@ seln.rules$dod_vars <- colnames(dod)[c(5:8)]
 #  counts used to suppress low counts for cdc compliance
 seln.rules$dod_counts <- seln.rules$dod_vars[grepl("deaths", seln.rules$dod_vars)]
 
+# vars for which tract-level view is available
+seln.rules$ct.vars <- seln.rules$gs_vars
 
 # seln.rules$ts_vars is defined below
 

@@ -1,23 +1,28 @@
 # front-end/legend labels ------------------------------------------
 
-selectables$outcomes
-unlist(unname(selectables$outcomes))
 #' make_display_label
 #'
 #' Get display/label name based on selected outcome / indicator. prefixes change.in
 #' when necessary. viz-fcns/tooltip
-make_display_label <- function(input, change_in = F, showing_cts = F, outcome.opts = selectables$outcomes) {
-  # get UI name for selected outcome; appends indicator if appropriate
-  ui_outcome_string <- unlist(unname(outcome.opts))[unlist(unname(outcome.opts)) == input$outcome] %>% names()
-  ui_indicator_string <- { if(showing_cts || input$indicator == "outcome")
-    ""
-    else paste0(input$indicator, " - ")
-    }
+make_display_label <- function(input, just_outcome = F, outcome.opts = selectables$outcomes) {
 
-  ui_name <- paste0(ui_indicator_string, ui_outcome_string)
-  if (change_in) ui_name <- paste0("Change in ", ui_name)
+  # index to display name for selected outcome
+  ui_outcome_string <-
+    unlist(unname(selectables$outcomes))[unlist(unname(selectables$outcomes)) == input$outcome] %>% names()
 
-  return(ui_name)
+  # combine w/ indicator if appropriate
+  if(just_outcome || input$indicator == "outcome")
+    ui_indicator_string <- ""
+  else
+    ui_indicator_string <- paste0(input$indicator, " - ")
+
+  display_name <- paste0(ui_indicator_string, ui_outcome_string)
+
+  # prefix "Change in" if appropriate
+  if (input$change_in & input$outcome %in% seln.rules$ts_vars)
+    display_name <- paste0("Change in ", display_name)
+
+  return(display_name)
 }
 
 
@@ -42,11 +47,11 @@ add_legend <- function(proxy, to.map, pal, legend.title) {
 make_tooltips <- function(input, to.map, click2zoom_enabled = TRUE) {
 
   # make outcome/indicator & population
-  tooltip <- paste0("<b>",make_display_label(input, showing_cts = !click2zoom_enabled), ":</b> ",to.map$formatted_x,
+  tooltip <- paste0("<b>",make_display_label(input, !click2zoom_enabled), ":</b> ",to.map$formatted_x,
                     "<br><b>population:</b> ", appHelpers::q.format(to.map$population, digits = 0))
 
   # area names header & zoom info if not CTs
-  if(click2zoom_enabled)
+  if(click2zoom_enabled & input$outcome %in% seln.rules$ct.vars)
     tooltip <- paste0("<b>",to.map$region.name,"</b><br>",
                       tooltip,
                       "<br>(click to zoom)")
@@ -78,14 +83,15 @@ shinyInput <- function(FUN, len, id, ...) {
 #' apply_rounding
 #'
 #' Takes numeric; if > 10k, rounds nearest thousand and formats; otherwise, rounds to
-#' nearest hundredth. viz-fcns/tooltip
-apply_rounding <- function(x) {
+#' \code{digits}. viz-fcns/tooltip
+apply_rounding <- function(x, digits = 2) {
   if( any(x > 1e4, na.rm = T) ) {
     x <- round(x, digits = -3)
     x <- appHelpers::q.format(x, digits = 0)
     return(x)
   }
-  x <- appHelpers::q.format(x, digits = 3)
+
+  x <- appHelpers::q.format(x, digits = digits)
   return(x)
 }
 

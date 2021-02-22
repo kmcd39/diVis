@@ -6,7 +6,7 @@
 
 library(dplyr)
 
-# devtools::load_all(export_all = F)
+#devtools::load_all(export_all = F)
 
 
 # build combined df for parsing out all possible options -----------------------
@@ -23,23 +23,35 @@ all.vars <- allm$var.name %>% unique()
 
 # define options ---------------------------------------------------------------
 selectables <- list()
+colnames(cts)
 #OUTCOMES
-selectables$outcomes <- list("Opp Insights" = list("kfr 29 pooled" = "kfr_29_mean",
-                                       "kfr 26 pooled" = "kfr_26_mean",
-                                       "kfr pooled p25" ="kfr_p25",
-                                       "kfr pooled p75" = "kfr_p75",
-                                       "jail pooled mean" = "jail_mean"),
-                 "Economic Indicators" = list("Household median income" = "hh.median.income",
-                                              "Jobless rate" = "jobless_rate",
-                                              "Unemployment rate" = "unemployment_rate",
-                                              "Poverty rate" = "poverty_rate",
-                                              "Labor force participation rate" = "lfpr"),
-                 "Deaths of Despair" = list("Suicide rate per 100,000 people" = "srate_e"
-                                            ,"Overdose deaths per 100,000 people" = "orate_e"
-                                            ,"Suicide deaths" = "sdeaths_e"
-                                            ,"Overdose deaths" = "odeaths_e"),
-                 "Life Expectancy" = list("Life expectancy" = "e.0."),
-                 "Demographics" = list("Percent non-white" = "perc.nonwhite"))
+selectables$outcomes <-
+  list("Opp Insights" =
+         list("kfr 29 pooled" = "kfr_29_mean",
+              "kfr 26 pooled" = "kfr_26_mean",
+              "kfr pooled p25" ="kfr_p25",
+              "kfr pooled p75" = "kfr_p75",
+              "jail pooled mean" = "jail_mean"),
+
+       "Segregation Indicators" =
+         as.list( colnames(cts)[30:50] ),
+
+       "Economic Indicators" =
+         list("Household median income" = "hh.median.income",
+              "Jobless rate" = "jobless_rate",
+              "Unemployment rate" = "unemployment_rate",
+              "Poverty rate" = "poverty_rate",
+              "Labor force participation rate" = "lfpr"),
+       "Deaths of Despair" =
+         list("Suicide rate per 100,000 people" = "srate_e"
+              ,"Overdose deaths per 100,000 people" = "orate_e"
+              ,"Suicide deaths" = "sdeaths_e"
+              ,"Overdose deaths" = "odeaths_e"),
+       "Life Expectancy" =
+         list("Life expectancy" = "e.0."),
+       "Demographics" =
+         list("Percent non-white" = "perc.nonwhite")
+       )
 
 # INDICATORS
 # geoseg::metrics %>% colnames()
@@ -50,13 +62,15 @@ selectables$indicators <- # indicators are calculated descriptive statistics; mo
 # region types (CTs not selectable from dropdown menu)
 selectables$region_types = allm %>% pull(region.type) %>% unique()
 # shiny ui needs a list
-names(selectables$region_types) = as.list(
+names(selectables$region_types) <-
   case_when(
-  regions == "cbsa" ~ "Metro area",
-  regions == "cz" ~ "Commuting Zone",
-  regions == "us" ~ "National",
-  TRUE ~ stringr::str_to_title(regions))
-  )
+    selectables$region_types == "cbsa" ~ "Metro area",
+    selectables$region_types == "cz" ~ "Commuting Zone",
+    selectables$region_types == "us" ~ "National",
+  TRUE ~ stringr::str_to_title(selectables$region_types))
+
+selectables$region_types <-
+  as.list(selectables$region_types)
 
 
 # Division overlay options

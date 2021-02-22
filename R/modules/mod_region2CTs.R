@@ -1,10 +1,11 @@
 
-# work fcn ---------------------------------------------------------------------
+# helper fcn ---------------------------------------------------------------------
 
 #' get_CTs_by_region
 #'
-#' Given single row representing a larger region, get all corresponding CTs. Bundles
-#' other steps applied before mapping, i.e., \code{bin_and_format} and \code{st_sf}.
+#' Given single row representing a larger region, get all corresponding census
+#' tracts. Bundles other steps applied before mapping, i.e., \code{bin_and_format}
+#' and \code{st_sf}.
 #' @param region single-row sf object in region.id/region.type cols.
 #' @param outcome Which column to show, from input$outcome
 #' @param ... add'l argumets passed onto \code{bin_and_format}.
@@ -22,7 +23,7 @@ get_CTs_by_region <- function(region, outcome, ...) {
 
   region.cts <- bin_and_format(region.cts, ...)
   region.cts <- st_sf(region.cts)
-  st_crs(region.cts) <- 4326 # explicit crs for shinyapp.io
+  st_crs(region.cts) <- 4326 # explicit crs for shinyapp.io hosting
 
   return(region.cts)
 }
@@ -42,6 +43,7 @@ get_CTs_by_region <- function(region, outcome, ...) {
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
+#' @export
 mod_region2CTs <- function(id,
                            region.reactive,
                            CT.reactive,
@@ -51,14 +53,32 @@ mod_region2CTs <- function(id,
 
   moduleServer(id, function(input, output, session) {
 
-    # update CT reactive when region changes ---------------------------------
-    observeEvent(region.reactive(), {
+    # update CT reactive when region or outcome changes ----------------------------
+    observeEvent( list(region.reactive(), input$outcome), {
 
-  #browser()
 
-      # if not NULL, zoom to region
+
+      # & set ct reactive with helper fcn if available -- otherwise reset to null
+      if(input$outcome %in% seln.rules$ct.vars) {
+
+        CT.reactive(
+          get_CTs_by_region( region.reactive(), input$outcome )
+        )
+
+      } else {
+
+        CT.reactive(NULL)
+        region.reactive(NULL)
+
+      }
+
+    }, ignoreNULL = F, ignoreInit = T)
+
+
+    # update zoom when CT reactive changes -----------------------------------------
+    observeEvent( region.reactive(), {
+
       if(!is.null(region.reactive())) {
-
         # zoom to region
         region.coords <-
           suppressWarnings(
@@ -72,12 +92,7 @@ mod_region2CTs <- function(id,
         )
       }
 
-      # & set reactive after
-      CT.reactive(
-        get_CTs_by_region( region.reactive(), input$outcome )
-      )
-
-    }, ignoreNULL = F, ignoreInit = T)
+    })
 
     # send region name to text box  ------------------------------------------
     output$zoom.in_region <- renderText({
@@ -91,6 +106,14 @@ mod_region2CTs <- function(id,
 
 
 # input (text box) -------------------------------------------------------------
+
+#' mod_region2CTs_ui
+#'
+#' Server-side equivalent does work of querying all CTs and prepping them to map,
+#' updating leaflet zoom etc., to facillitate leaflet interaction and zooming in to
+#' small areas. This UI module just does a text box with the larger region name when
+#' zoomed in
+#' @export
 mod_region2CTs_ui <- function(id) {
 
   ns <- NS(id)

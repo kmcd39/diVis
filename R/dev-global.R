@@ -32,8 +32,6 @@ cts <- readRDS(file = "R/data/cts.RDS")    #geoseg::cts
 dod <- readRDS("R/data/dod.RDS")
 source("data-raw/selectabilities.R")
 
-geo.list[1:3] <- imap(geo.list[1:3], ~rename(., region.id = 1, region.name = 2))
-
 # minor helper sets ------------------------------------------------------------
 
 # (now in appHelpers)

@@ -7,7 +7,9 @@ test.indicator = "Gini"
 simul.input <- list(outcome = test.var,
                     indicator = test.indicator,
                     region_type = test.region,
-                    pop_weighted = FALSE)
+                    pop_weighted = FALSE,
+                    change_in = F,
+                    year = 2010)
 
 test.gs.dat <- parse.geoseg.data(simul.input)
 

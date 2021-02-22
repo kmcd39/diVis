@@ -8,7 +8,6 @@
 #' representing the clicked region.
 #' @param cursor_data list as returned from input$map_shape_click or hover.
 #' @param map.layer sf object from leaflet map.
-#' @export
 click.hover_2region <- function(cursor_data, map.layer){
 
   if(is.null(cursor_data) || is.null(map.layer))
@@ -50,6 +49,7 @@ click.hover_2region <- function(cursor_data, map.layer){
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
+#' @export
 mod_parse_leaflet.interaction <- function(id,
                                           gs.out, show_CTs,
                                           leaflet_interaction,
@@ -109,12 +109,12 @@ mod_parse_leaflet.interaction <- function(id,
 #' @description Module to define UI for manipulating the output dataset used
 #'   throughout most of the app.
 #'
-#' @param id,input,output,session Internal parameters for {shiny}.
-#' @param selectables Selectable options. Likely as
+#' @param id
 #'
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @export
 mod_parse_CT_ui <- function(id){
   ns <- NS(id)
 

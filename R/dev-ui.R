@@ -23,12 +23,11 @@ gs_ui <- fluidPage(
 
       mainPanel(
         shinydashboard::tabBox(id = "main_display",
-        #tabsetPanel(id = "main_display",
-                               selected = "map",
+                               selected =  "map", #"distribution",
                                width = 12,
                                height = "100%",
 
-                               tabPanel(("map"),
+                               tabPanel("map",
 
                                         # leaflet output
                                         leafletOutput("map",
@@ -42,11 +41,11 @@ gs_ui <- fluidPage(
                                         mod_div_overlay_ui("gs", div.opts)),
 
 
-                               tabPanel(("distribution"),
-
+                               tabPanel("distribution",
                                         # point histogram
-                                        mod_point.histogram_ui("gs"),
-                                        mod_population.filter_ui("gs"))
+                                        mod_population.filter_ui("gs"),
+                                        mod_point.histogram_ui("gs"))
+
         ),
         width = 12 - sidebar.width
       )

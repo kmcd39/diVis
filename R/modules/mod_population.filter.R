@@ -50,6 +50,7 @@ apply_population_filter <- function( x, pop_range_selection, slider_range = pop_
 #' @param x Dataframe with a 'population' column to filter by
 #'
 #' @noRd
+#' @export
 mod_population.filter <- function(id, x) {
 
   moduleServer(id, function(input, output, session) {
@@ -59,7 +60,6 @@ mod_population.filter <- function(id, x) {
     observeEvent(list(x(), input$population_slider), {
 
       req(x())
-
       # parse input and set to reactive
       pop.filtered( apply_population_filter(x(), input$population_slider) )
 
@@ -83,16 +83,18 @@ mod_population.filter <- function(id, x) {
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#' @export
 mod_population.filter_ui <- function(id, range = pop_filter_range){
   ns <- NS(id)
 
   tagList(
-    sliderTextInput(ns("population_slider"), label = strong("Filter by population"),
+    sliderTextInput(ns("population_slider"),
+                    label = strong("Filter by Population"),
                     choices = pop_filter_range,
                     selected = c(pop_filter_range[1], pop_filter_range[length(pop_filter_range)]),
                     from_max = pop_filter_range[length(pop_filter_range)-1],
                     to_min = pop_filter_range[2], grid = FALSE,
-                    dragRange = T , width = "90%")
+                    dragRange = T , width = "100%")
   )
 }
 

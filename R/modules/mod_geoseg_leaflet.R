@@ -14,6 +14,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
+#' @export
 mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
   moduleServer(id, function(input, output, session) {
@@ -52,8 +53,10 @@ mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
       # add legend
       proxy %>% add_legend( to.map, map.pal,
-                            legend.title = make_display_label(input,
-                                                              showing_cts = is_showing_cts) )
+                            legend.title =
+                              make_display_label(input,
+                                                 just_outcome = is_showing_cts)
+                            )
 
       # clear old shapes
       proxy %>% clearGroup("gs.dat")
