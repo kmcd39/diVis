@@ -32,10 +32,6 @@ selectables$outcomes <-
               "kfr pooled p25" ="kfr_p25",
               "kfr pooled p75" = "kfr_p75",
               "jail pooled mean" = "jail_mean"),
-
-       "Segregation Indicators" =
-         as.list( colnames(cts)[30:50] ),
-
        "Economic Indicators" =
          list("Household median income" = "hh.median.income",
               "Jobless rate" = "jobless_rate",

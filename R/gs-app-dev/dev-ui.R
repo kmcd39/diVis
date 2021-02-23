@@ -6,7 +6,7 @@ output.height = 640
 
 # ui ---------------------------------------------------------------------------
 
-gs_ui <- fluidPage(
+gs_ui <- shiny::fluidPage(
 
     shinyjs::useShinyjs(),
     #tags$head(

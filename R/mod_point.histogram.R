@@ -187,6 +187,8 @@ mod_point.histogram <- function(id,
     # prep for table display
     hist.dat_forTable <- reactive({
 
+
+
       dat.with.buttons <- tibble(
         prepped.dat(),
         "zoom_buttons" = gen_zoomButtons(nrow(prepped.dat()), ns),
@@ -199,7 +201,9 @@ mod_point.histogram <- function(id,
                  "Population" = population,
                  " " = "zoom_buttons")) %>%
         rename(!!input$indicator := formatted_x,
-               !!make_display_label(input, just_outcome = T) := outcome) %>%
+               !!make_display_label(input,
+                                    just_outcome = T) :=
+                 outcome) %>%
         mutate(Population = format(Population, big.mark = ",", digits = 0, scientific = FALSE))
     })
 
@@ -301,6 +305,7 @@ mod_point.histogram_ui <- function(id){
 
 point.hist_app <- function() {
 
+  require(shiny)
   # ui ---------------------------------------------------------------------------
   ui <- fluidPage(
     mod_geoseg_ui("gs", selectables),
@@ -324,4 +329,4 @@ point.hist_app <- function() {
 
 # launch -----------------------------------------------------------------------
 
-# point.hist_app()
+ #point.hist_app()

@@ -103,6 +103,7 @@ dod_attr_subset <- function(input) {
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
+#'
 mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
 
   moduleServer(id, function(input, output, session) {
@@ -218,8 +219,8 @@ mod_geoseg <- function(id, gs.colors = viridis::viridis(7)) {
       input$year_range,
       input$change_in), {
 
-        #' may be room for improvement combining this w/ above observer (wrapped in an
-        #' if statement -- i.e, if not all inputs are in legal_choices, then run update_choices_and_UI)
+        # may be room for improvement combining this w/ above observer (wrapped in an
+        # if statement -- i.e, if not all inputs are in legal_choices, then run update_choices_and_UI)
         # ensure selectables updated in ui / validate
         legal_choices <- seln.matrix[seln.matrix$outcome %in% input$outcome,] %>%
           purrr::map(unlist)
@@ -322,7 +323,7 @@ base.app <- function() {
 
   require(shinyjs)
   # ui ---------------------------------------------------------------------------
-  ui <- fluidPage(
+  ui <- shiny::fluidPage(
     shinyjs::useShinyjs(),
     mod_geoseg_ui("gs", selectables),
     DT::dataTableOutput("out")
@@ -343,7 +344,7 @@ base.app <- function() {
       DT::datatable(v())
     })
   }
-  shinyApp(ui, server)
+  shiny::shinyApp(ui, server)
 }
 
 

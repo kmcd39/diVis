@@ -69,3 +69,8 @@ defaults$year_range <-
   )
 
 '
+
+# write ------------------------------------------------------------------------
+
+#usethis::use_data(seln.rules, internal = T, over)
+#usethis::use_data(seln.matrix, internal = T)

@@ -7,7 +7,7 @@
 #' Flow-fcns/data-processing
 #' @param df Dataframe to send to display
 #' @param ... Add'l arguments passed to \code{bin.var_format}
-#' @export
+#' @export bin_and_format
 bin_and_format <- function(df, n_breaks = 7, ...) {
 
   df$binned_x <- appHelpers::bin.var_format(df$x, ...)
@@ -67,7 +67,9 @@ suppress.low.CDC.counts <- function(df, input) {
 
 # Handling time series ---------------------------------------------------------
 
-
+#' get_change_in
+#'
+#' Get difference in var `x` at two years of time slider
 get_change_in <- function(xdf, input) {
 
   starts <- xdf %>%

@@ -1,4 +1,4 @@
-# source("R/dev-global.R")
+#source(here::here("./R/gs-app-dev/dev-global.R"))
 source(here::here("./R/gs-app-dev/dev-ui.R"))
 
 # server -----------------------------------------------------------------

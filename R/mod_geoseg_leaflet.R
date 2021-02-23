@@ -14,7 +14,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @import sf leaflet
-#' @export
+#' @export mod_geoseg_leaflet
 mod_geoseg_leaflet <- function(id, gs.dat, show_CTs, gs.palette, proxy) {
 
   moduleServer(id, function(input, output, session) {

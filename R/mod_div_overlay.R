@@ -11,7 +11,7 @@
 #' @noRd
 #'
 #' @import dblinkr
-#' @export
+#' @export mod_div_overlay_server
 mod_div_overlay_server <- function(id, show_CTs, proxy) {
 
   moduleServer(id, function(input, output, session) {
@@ -20,8 +20,8 @@ mod_div_overlay_server <- function(id, show_CTs, proxy) {
 
     # manage db connections
     con <- dblinkr::db.connect(
-      db.usr,
-      db.pw,
+      Sys.getenv("PRINCETON_LOGIN"), #db.usr,
+      Sys.getenv("PRINCETON_PW"), #db.pw,
       pool = F)
 
     sessionId <- as.integer(runif(1, 1, 100000))
@@ -82,7 +82,7 @@ mod_div_overlay_server <- function(id, show_CTs, proxy) {
 #' @noRd
 #'
 #' @importFrom shiny NS tagList
-#' @export
+#' @export mod_div_overlay_ui
 mod_div_overlay_ui <- function(id, div.opts){
   ns <- NS(id)
   shinyjs::useShinyjs()

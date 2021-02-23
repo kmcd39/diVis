@@ -4,7 +4,7 @@
 
 # add soc-ineq data -------------------------------------------------------
 # rm(dod)
-dod <- read.csv("data-raw/dod_ts.csv") %>% tibble()
+dod <- read.csv("data-raw/local-data/dod_ts.csv") %>% tibble()
 dod$county =
   stringr::str_pad(dod$county, 5, "left", "0")
 dod <- dod %>%
@@ -26,8 +26,8 @@ dod_agg <- left_join(dod,
 
 dod_agg <- left_join(dod_agg,
                      xwalks::state2div,
-                     by = c("state" = "abv"))
-dod_agg$abv = dod_agg$state
+                     by = c("statefp" = "abv"))
+dod_agg$abv = dod_agg$statefp
 dod_agg$state = dod_agg$statefp
 (dod_agg <- dod_agg %>% select(-statefp))
 dod_agg$national <- 1
@@ -78,7 +78,7 @@ dod <- dod %>%
 # write ------------------------------------------------------------------------
 
 # rds for dev
-saveRDS(dod, file = "R/data/dod.RDS")
+#saveRDS(dod, file = "R/data/dod.RDS")
 
 
-# usethis::
+usethis::use_data(dod, overwrite = T)

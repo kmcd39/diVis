@@ -66,10 +66,9 @@ metrics <- metrics %>%
 # write ------------------------------------------------------------------------
 
 # rds for dev
-saveRDS(metrics,
-        file =
-          "R/data/metrics.RDS")
-
-# rda for publishing
-#usethis::use_data(metrics,
-#                  overwrite = T)
+'saveRDS(metrics,
+        file = "R/data/metrics.RDS")
+'
+# rda
+usethis::use_data(metrics,
+                  overwrite = T)

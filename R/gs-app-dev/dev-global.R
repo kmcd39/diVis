@@ -1,6 +1,6 @@
 
 # DEV global -------------------------------------------------------------------
-
+rm(list = ls())
 # this uses different relative file paths and might have some other changes compared
 # to "global.R." This one is designed for sourcing while developing app; the other is
 # for shiny deployment.
@@ -26,6 +26,8 @@ devtools::load_all()
 
 diVis::geo.list
 source(here::here("./data-raw/gs-data/gs-selectables.R"))
+source(here::here("./data-raw/gs-data/gs-selectabilities-matrix.R"))
+
 
 # minor helper sets ------------------------------------------------------------
 

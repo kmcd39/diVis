@@ -86,7 +86,6 @@ cts <- cts %>% select(-matches(".+_n$|.+_se$"))
 cts <- cts %>% select(-tractce)
 
 
-
 # generate population density/tract --------------------------------------------
 
 # aland 2 km
@@ -136,8 +135,7 @@ cts %>%
 
 # cts <- readRDS("data/cts.RDS")
 
-saveRDS(cts,
-         "R/data/cts.RDS")
+#saveRDS(cts, "R/data/cts.RDS")
 
-#usethis::use_data(cts
-#                  ,overwrite = TRUE)
+usethis::use_data(cts
+                  ,overwrite = TRUE)

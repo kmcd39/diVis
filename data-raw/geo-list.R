@@ -123,6 +123,37 @@ geo.list <-
   imap(geo.list,
        ~mutate(., region.id = as.character(region.id)))
 
+
+# final spatial cleans ---------------------------------------------------------
+
+# to check
+geo.list %>%
+  map( divM::count.geo )
+
+tmp <- geo.list %>%
+  map( ~filter(.,
+               st_geometry_type(.$geometry) ==
+                 "GEOMETRYCOLLECTION")
+       )
+
+tmp <- tmp[ map_lgl(tmp, ~nrow(.) > 0) ]
+tmp %>%
+  map( ~st_collection_extract(., "POLYGON")) %>%
+  map( plot )
+
+
+
+geo.list <-
+  geo.list %>%
+  map(
+    ~mutate(
+      ., geometry =
+        st_collection_extract(.$geometry, "POLYGON"),
+                .$geometry)
+    )
+
+
+
 # peek & write ------------------------------------------------------------------------
 geo.list
 
